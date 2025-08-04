@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Details</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #0B3D91;
+      margin-top: 0;
+    }
+    img#cover {
+      display: block;
+      margin: 20px 0;
+      max-width: 200px;
+      border-radius: 4px;
+    }
+    h2 {
+      color: #0B3D91;
+      margin-bottom: 5px;
+    }
+    a {
+      color: #0B3D91;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="title">Book Details</h1>
+    <p><strong>Author:</strong> <span id="author"></span></p>
+    <p><strong>Call Number:</strong> <span id="callnumber"></span></p>
+    <p><strong>Other Info:</strong> <span id="otherinfo"></span></p>
+    <p><strong>Availability:</strong> <span id="available"></span></p>
+    <img id="cover" src="" alt="Book cover">
+    <h2>Author Bio</h2>
+    <p id="bio"></p>
+    <h2>Summary</h2>
+    <p id="summary"></p>
+    <h2>Sample</h2>
+    <p id="sample"></p>
+    <p><a href="index.html">&#8592; Back to catalogue</a></p>
+  </div>
+  <script>
+    // Retrieve the row data stored in localStorage by index.html
+    var rowDataStr = localStorage.getItem('selectedBook');
+    var rowData = rowDataStr ? JSON.parse(rowDataStr) : null;
+    if (rowData) {
+      var author = rowData[0];
+      var title = rowData[1];
+      var id = rowData[2];
+      var callNum = rowData[3];
+      var other = rowData[4];
+      var available = rowData[5];
+      document.getElementById('title').textContent = title;
+      document.getElementById('author').textContent = author;
+      document.getElementById('callnumber').textContent = callNum;
+      document.getElementById('otherinfo').textContent = other;
+      document.getElementById('available').textContent = available ? 'Available' : 'Not available';
+
+      // Define a small set of extended details for certain books. Each entry
+      // includes a cover image URL, author mini‑bio, summary and a sample link.
+      var bookDetails = {
+        "002207": {
+          cover: "https://via.placeholder.com/200x300?text=Brave+by+Faith",
+          bio: "Alistair Begg is the senior pastor of Parkside Church in Cleveland, Ohio, and the Bible teacher on the Truth For Life radio program.",
+          summary: "Brave by Faith explores the story of Daniel and encourages believers to stand firm and trust God in a secular world.",
+          sample: "<a href=\"https://www.monergism.com/brave-faith\">Read sample</a>"
+        },
+        "000002": {
+          cover: "https://via.placeholder.com/200x300?text=Covenant+Theology",
+          bio: "JJ Lim is a pastor and theologian known for his clear exposition of covenant theology.",
+          summary: "This primer introduces the key themes of covenant theology and its biblical foundations.",
+          sample: "<a href=\"https://www.monergism.com/covenant-theology-primer\">Download at Monergism</a>"
+        },
+        "000003": {
+          cover: "https://via.placeholder.com/200x300?text=Not+to+Destroy",
+          bio: "Linus Chua serves as a pastor and author, writing on a range of theological and practical topics.",
+          summary: "In Not to Destroy, But to Fulfill, the author reflects on how Christ fulfils the law and prophets.",
+          sample: "<a href=\"https://www.ccel.org\">E‑book at CCEL</a>"
+        }
+      };
+      var details = bookDetails[id];
+      if (details) {
+        document.getElementById('cover').src = details.cover;
+        document.getElementById('bio').textContent = details.bio;
+        document.getElementById('summary').textContent = details.summary;
+        document.getElementById('sample').innerHTML = details.sample;
+      } else {
+        // If no extended details are available, hide the cover image and show
+        // placeholder messages.
+        document.getElementById('cover').style.display = 'none';
+        document.getElementById('bio').textContent = 'Author biography coming soon.';
+        document.getElementById('summary').textContent = 'Summary coming soon.';
+        document.getElementById('sample').textContent = 'E‑book unavailable.';
+      }
+    } else {
+      // If localStorage has no data, display an error message.
+      document.querySelector('.container').innerHTML = '<p>No book data found. Please return to the catalogue and select a book.</p>';
+    }
+  </script>
+</body>
+</html>

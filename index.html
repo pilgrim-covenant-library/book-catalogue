@@ -184,6 +184,25 @@
     $(document).ready(function() {
       populateFilters();
       initTables();
+
+      // Open book details page on row click. When a user clicks on a row in any
+      // of the DataTables, capture the data for that row and redirect to a
+      // dedicated book page. The third element in the data array (index 2)
+      // corresponds to the book's unique ID. This handler uses jQuery's
+      // event delegation to listen for clicks on all table rows after the
+      // tables have been initialised. It builds a query string with the
+      // encoded ID and navigates the browser to `book.html`, where details
+      // about the selected title will be displayed.
+      $('table.display tbody').on('click', 'tr', function() {
+        var table = $(this).closest('table').DataTable();
+        var rowData = table.row(this).data();
+        var id = rowData[2];
+        // Persist the clicked row's data in localStorage so that book.html can
+        // reconstruct details without needing the full datasets. Using
+        // JSON.stringify allows us to store the array as a string.
+        localStorage.setItem('selectedBook', JSON.stringify(rowData));
+        window.location.href = 'book.html?id=' + encodeURIComponent(id);
+      });
     });
   </script>
 </body>
