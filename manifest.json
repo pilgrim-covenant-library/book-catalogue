@@ -1,0 +1,36 @@
+{
+  "name": "PCC Library Catalogue",
+  "short_name": "PCC Library",
+  "description": "Pilgrim Covenant Church Library - Browse and discover theological books",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0B3D91",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://pilgrim-covenant.com/images/logo/svg/logo.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "books", "reference"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Search Books",
+      "short_name": "Search",
+      "description": "Search the library catalogue",
+      "url": "/?search=true",
+      "icons": []
+    },
+    {
+      "name": "My Favorites",
+      "short_name": "Favorites",
+      "description": "View your favorite books",
+      "url": "/?view=favorites",
+      "icons": []
+    }
+  ]
+}

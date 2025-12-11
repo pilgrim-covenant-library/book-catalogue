@@ -3,30 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- PWA Manifest (Sprint 5) -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0B3D91">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="PCC Library">
-  <link rel="apple-touch-icon" href="https://pilgrim-covenant.com/images/logo/svg/logo.svg">
-
-  <!-- Performance Optimizations -->
-  <link rel="preconnect" href="https://code.jquery.com">
-  <link rel="preconnect" href="https://cdn.datatables.net">
-  <link rel="preconnect" href="https://covers.openlibrary.org">
-  <link rel="dns-prefetch" href="https://covers.openlibrary.org">
-
-  <!-- SEO and Social -->
-  <meta name="description" content="Browse the Pilgrim Covenant Church library catalogue with 2,500+ theological books, author biographies, and e-book links.">
-  <meta name="keywords" content="library, theology, reformed, books, PCC, Pilgrim Covenant Church">
-  <meta property="og:title" content="PCC Library Catalogue">
-  <meta property="og:description" content="Browse the Pilgrim Covenant Church library catalogue">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="https://pilgrim-covenant.com/images/logo/svg/logo.svg">
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PCC Library Catalogue</title>
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <link rel="stylesheet" href="assets/css/catalogue-enhanced.css">
@@ -126,8 +102,6 @@
 </style>
 </head>
 <body>
-  <a href="#main-content" class="skip-to-content" style="position: absolute; left: -9999px; z-index: 999; padding: 1rem; background: var(--primary-color); color: white; text-decoration: none; font-weight: 600;">Skip to main content</a>
-
   <!-- Enhanced Header -->
   <header class="enhanced-header">
     <div class="header-top">
@@ -163,7 +137,6 @@
     </div>
   </header>
 
-  <main id="main-content" role="main">
   <!-- Tab Navigation -->
   <nav class="tab-nav">
     <button class="tab-btn active" onclick="openTab(event, 'main')">Main Collection</button>
@@ -1671,57 +1644,5 @@ $(document).ready(function() {
 };
   </script>
   <script src="assets/js/catalogue-enhanced.js"></script>
-
-  <!-- Service Worker Registration (Sprint 5 - PWA) -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-          .then(registration => {
-            console.log('✅ ServiceWorker registered:', registration.scope);
-          })
-          .catch(error => {
-            console.log('❌ ServiceWorker registration failed:', error);
-          });
-      });
-    }
-
-    // PWA Install Prompt
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-
-      // Show install button
-      const installBtn = document.createElement('button');
-      installBtn.className = 'pwa-install-btn';
-      installBtn.innerHTML = '📱 Install App';
-      installBtn.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        padding: 12px 24px;
-        background: #0B3D91;
-        color: white;
-        border: none;
-        border-radius: 50px;
-        font-weight: 600;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        z-index: 9999;
-        animation: slideInUp 0.3s ease-out;
-      `;
-
-      installBtn.addEventListener('click', async () => {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log(`User ${outcome} the install prompt`);
-        deferredPrompt = null;
-        installBtn.remove();
-      });
-
-      document.body.appendChild(installBtn);
-    });
-  </script>
 </body>
 </html>
