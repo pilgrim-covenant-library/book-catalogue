@@ -321,16 +321,22 @@
       console.log('📊 Current view:', State.currentView);
       console.log('📚 Total books in State:', State.books.length);
 
-      // If in table view, use DataTables search
+      // If in table view, use DataTables search on all visible tables
       if (State.currentView === 'table') {
         try {
-          const table = $('#catalogue-table').DataTable();
-          if (table) {
-            console.log('✅ DataTable found, searching...');
-            table.search(query).draw();
-          } else {
-            console.error('❌ DataTable not found!');
-          }
+          // Search all tables
+          const tableIds = ['main-table', 'children-table', 'dvd-table', 'chinese-table'];
+          tableIds.forEach(tableId => {
+            try {
+              const table = $(`#${tableId}`).DataTable();
+              if (table) {
+                table.search(query).draw();
+              }
+            } catch (e) {
+              // Table might not be initialized yet
+            }
+          });
+          console.log('✅ DataTables searched');
         } catch (error) {
           console.error('❌ DataTable error:', error);
         }
@@ -341,15 +347,18 @@
       if (!query.trim()) {
         State.filteredBooks = [];
         ViewManager.renderBooks();
-        // Clear DataTable search too
-        try {
-          const table = $('#catalogue-table').DataTable();
-          if (table) {
-            table.search('').draw();
+        // Clear all DataTable searches too
+        const tableIds = ['main-table', 'children-table', 'dvd-table', 'chinese-table'];
+        tableIds.forEach(tableId => {
+          try {
+            const table = $(`#${tableId}`).DataTable();
+            if (table) {
+              table.search('').draw();
+            }
+          } catch (error) {
+            // Table might not be initialized yet
           }
-        } catch (error) {
-          // DataTable might not be initialized yet
-        }
+        });
         return;
       }
 
@@ -383,27 +392,39 @@
   // ==========================================
   const DataLoader = {
     loadFromDataTable() {
-      // Extract book data from existing DataTable
-      const table = $('#catalogue-table').DataTable();
-      if (!table) return;
-
-      const data = table.rows().data();
+      // Extract book data from all DataTables (main, children, dvd, chinese)
+      const tableIds = ['main-table', 'children-table', 'dvd-table', 'chinese-table'];
       State.books = [];
 
-      for (let i = 0; i < data.length; i++) {
-        const row = data[i];
-        State.books.push({
-          author: row[0],
-          title: row[1],
-          id: row[2],
-          callNumber: row[3],
-          year: row[4],
-          copy: row[5],
-          isbn: this.extractISBN(row) // Try to extract from publication dates data
-        });
-      }
+      tableIds.forEach(tableId => {
+        try {
+          const table = $(`#${tableId}`).DataTable();
+          if (!table) {
+            console.warn(`⚠️ Table ${tableId} not found`);
+            return;
+          }
 
-      console.log(`Loaded ${State.books.length} books`);
+          const data = table.rows().data();
+          for (let i = 0; i < data.length; i++) {
+            const row = data[i];
+            State.books.push({
+              author: row[0],
+              title: row[1],
+              id: row[2],
+              callNumber: row[3],
+              year: row[4],
+              copy: row[5],
+              isbn: this.extractISBN(row),
+              category: tableId.replace('-table', '') // main, children, dvd, chinese
+            });
+          }
+          console.log(`✅ Loaded ${data.length} books from ${tableId}`);
+        } catch (error) {
+          console.error(`❌ Error loading ${tableId}:`, error);
+        }
+      });
+
+      console.log(`📚 Total loaded: ${State.books.length} books`);
 
       // Load publication dates if available
       this.enrichWithPublicationDates();
