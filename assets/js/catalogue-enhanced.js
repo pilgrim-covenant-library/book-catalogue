@@ -306,9 +306,24 @@
     },
 
     performSearch(query) {
+      // If in table view, use DataTables search
+      if (State.currentView === 'table') {
+        const table = $('#catalogue-table').DataTable();
+        if (table) {
+          table.search(query).draw();
+        }
+        return;
+      }
+
+      // For card/list views, filter State.filteredBooks
       if (!query.trim()) {
         State.filteredBooks = [];
         ViewManager.renderBooks();
+        // Clear DataTable search too
+        const table = $('#catalogue-table').DataTable();
+        if (table) {
+          table.search('').draw();
+        }
         return;
       }
 
