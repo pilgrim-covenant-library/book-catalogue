@@ -922,6 +922,423 @@
   };
 
   // ==========================================
+  // Sprint 3: Book Detail Modal Manager
+  // ==========================================
+  const BookDetailModal = {
+    currentBook: null,
+
+    init() {
+      this.attachClickListeners();
+    },
+
+    attachClickListeners() {
+      // Make book cards and list items clickable
+      document.addEventListener('click', (e) => {
+        const card = e.target.closest('[data-book-id]');
+        if (card && !e.target.closest('.remove-filter')) {
+          const bookId = card.dataset.bookId;
+          this.showBookDetail(bookId);
+        }
+      });
+
+      // Close modal listeners
+      const modal = document.querySelector('.book-detail-modal');
+      if (modal) {
+        const closeBtn = modal.querySelector('.book-detail-close');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', () => this.closeModal());
+        }
+
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            this.closeModal();
+          }
+        });
+      }
+
+      // Tab switching
+      document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('book-tab')) {
+          this.switchTab(e.target.dataset.tab);
+        }
+      });
+    },
+
+    showBookDetail(bookId) {
+      const book = State.books.find(b => b.id === bookId);
+      if (!book) return;
+
+      this.currentBook = book;
+      this.renderBookDetail(book);
+
+      const modal = document.querySelector('.book-detail-modal');
+      if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+      }
+    },
+
+    renderBookDetail(book) {
+      const modal = document.querySelector('.book-detail-modal');
+      if (!modal) return;
+
+      const coverUrl = CoverManager.getCoverUrl(book);
+      const authorBio = this.getAuthorBio(book.author);
+      const ebookLinks = this.getEbookLinks(book);
+      const relatedBooks = this.getRelatedBooks(book);
+
+      const detailHTML = `
+        <div class="book-detail-content">
+          <div class="book-detail-header">
+            <h2 style="margin:0;">Book Details</h2>
+            <button class="book-detail-close" aria-label="Close">&times;</button>
+          </div>
+
+          <div class="book-detail-body">
+            <div class="book-detail-main">
+              <div class="book-detail-cover">
+                ${coverUrl
+                  ? `<img src="${coverUrl}" alt="${book.title} cover">`
+                  : `<div class="book-detail-cover-placeholder">
+                       <div>📚</div>
+                       <div style="font-size: 0.9rem; margin-top: 1rem; padding: 1rem; text-align: center;">${book.title}</div>
+                     </div>`
+                }
+              </div>
+
+              <div class="book-detail-info">
+                <h1>${book.title}</h1>
+                <div class="book-detail-author">${book.author}</div>
+
+                <div class="book-meta-grid">
+                  ${book.year ? `
+                    <div class="book-meta-item">
+                      <div class="book-meta-label">Publication Year</div>
+                      <div class="book-meta-value">${book.year}</div>
+                    </div>
+                  ` : ''}
+
+                  ${book.callNumber ? `
+                    <div class="book-meta-item">
+                      <div class="book-meta-label">Call Number</div>
+                      <div class="book-meta-value">${book.callNumber}</div>
+                    </div>
+                  ` : ''}
+
+                  ${book.isbn ? `
+                    <div class="book-meta-item">
+                      <div class="book-meta-label">ISBN</div>
+                      <div class="book-meta-value">${book.isbn}</div>
+                    </div>
+                  ` : ''}
+
+                  ${book.publisher ? `
+                    <div class="book-meta-item">
+                      <div class="book-meta-label">Publisher</div>
+                      <div class="book-meta-value">${book.publisher}</div>
+                    </div>
+                  ` : ''}
+
+                  <div class="book-meta-item">
+                    <div class="book-meta-label">Copy</div>
+                    <div class="book-meta-value">${book.copy || 'N/A'}</div>
+                  </div>
+
+                  <div class="book-meta-item">
+                    <div class="book-meta-label">Book ID</div>
+                    <div class="book-meta-value">${book.id}</div>
+                  </div>
+                </div>
+
+                <div class="book-actions">
+                  <button class="book-action-btn" data-action="favorite">
+                    <span>❤️</span> Add to Favorites
+                  </button>
+                  <button class="book-action-btn" data-action="reading-list">
+                    <span>📚</span> Reading List
+                  </button>
+                  <button class="book-action-btn" data-action="share">
+                    <span>🔗</span> Share
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="book-tabs">
+              <button class="book-tab active" data-tab="overview">Overview</button>
+              <button class="book-tab" data-tab="author">Author</button>
+              ${ebookLinks.length > 0 ? '<button class="book-tab" data-tab="ebooks">E-books</button>' : ''}
+              ${relatedBooks.length > 0 ? '<button class="book-tab" data-tab="related">Related Books</button>' : ''}
+            </div>
+
+            <!-- Tab: Overview -->
+            <div class="book-tab-content active" data-tab-content="overview">
+              <div class="book-description">
+                <p>This book is part of the PCC Library collection. ${book.callNumber ? `It can be found in the ${this.getCategoryName(book.callNumber)} section.` : ''}</p>
+                ${book.year ? `<p>Published in ${book.year}${book.publisher ? ` by ${book.publisher}` : ''}, this work is ${this.getBookAge(book.year)}.</p>` : ''}
+              </div>
+            </div>
+
+            <!-- Tab: Author -->
+            <div class="book-tab-content" data-tab-content="author">
+              ${authorBio ? `
+                <div class="author-bio-section">
+                  <h3><span>✍️</span> About ${book.author}</h3>
+                  ${authorBio.dates ? `<div class="author-bio-dates">${authorBio.dates}</div>` : ''}
+                  <div class="author-bio-text">${authorBio.bio}</div>
+                  ${authorBio.sources ? `
+                    <div style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
+                      <strong>Sources:</strong> ${authorBio.sources.map(s => `<a href="${s}" target="_blank" style="color: var(--primary-color);">[${new URL(s).hostname}]</a>`).join(' ')}
+                    </div>
+                  ` : ''}
+                </div>
+              ` : `
+                <div class="author-bio-section">
+                  <h3>About ${book.author}</h3>
+                  <p style="color: var(--text-secondary);">Author biography not yet available in our database.</p>
+                </div>
+              `}
+
+              <!-- Other books by this author -->
+              ${this.getBooksByAuthor(book.author, book.id).length > 0 ? `
+                <div class="related-books-section">
+                  <h3>Other Books by ${book.author}</h3>
+                  <div class="related-books-grid">
+                    ${this.renderRelatedBooks(this.getBooksByAuthor(book.author, book.id))}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Tab: E-books -->
+            ${ebookLinks.length > 0 ? `
+              <div class="book-tab-content" data-tab-content="ebooks">
+                <div class="ebook-links-section">
+                  <h3>📖 Free E-book Sources</h3>
+                  ${ebookLinks.map(link => `
+                    <div class="ebook-link-item">
+                      <div>
+                        <div class="ebook-link-source">${link.source}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${link.format || 'Multiple formats'}</div>
+                      </div>
+                      <a href="${link.url}" target="_blank" class="ebook-link-btn">Read Now →</a>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+
+            <!-- Tab: Related Books -->
+            ${relatedBooks.length > 0 ? `
+              <div class="book-tab-content" data-tab-content="related">
+                <div class="related-books-section">
+                  <h3>Related Books</h3>
+                  <div class="related-books-grid">
+                    ${this.renderRelatedBooks(relatedBooks)}
+                  </div>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+
+      modal.innerHTML = detailHTML;
+
+      // Attach action button listeners
+      modal.querySelectorAll('.book-action-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const action = btn.dataset.action;
+          this.handleAction(action, book);
+        });
+      });
+    },
+
+    getAuthorBio(authorName) {
+      if (!window.authorBiographies) return null;
+
+      // Normalize author name for matching
+      const normalizedName = authorName.toLowerCase().trim();
+
+      for (const [bioAuthor, bioData] of Object.entries(window.authorBiographies)) {
+        if (bioAuthor.toLowerCase().trim() === normalizedName) {
+          return bioData;
+        }
+      }
+
+      return null;
+    },
+
+    getEbookLinks(book) {
+      const links = [];
+      const bookKey = `${book.author} - ${book.title}`;
+
+      if (window.ebookLinks && window.ebookLinks[bookKey]) {
+        const ebookData = window.ebookLinks[bookKey];
+        if (Array.isArray(ebookData)) {
+          return ebookData;
+        } else {
+          // Single link
+          links.push(ebookData);
+        }
+      }
+
+      return links;
+    },
+
+    getRelatedBooks(book) {
+      // Find books by same author or in same category
+      const related = [];
+
+      // Same author (limit 6)
+      const sameAuthor = State.books
+        .filter(b => b.author === book.author && b.id !== book.id)
+        .slice(0, 6);
+
+      related.push(...sameAuthor);
+
+      // If not enough, add books from same category
+      if (related.length < 6 && book.callNumber) {
+        const category = book.callNumber.match(/^([A-Z]+)/)?.[1];
+        if (category) {
+          const sameCategory = State.books
+            .filter(b => b.callNumber?.startsWith(category) && b.id !== book.id && !related.includes(b))
+            .slice(0, 6 - related.length);
+
+          related.push(...sameCategory);
+        }
+      }
+
+      return related;
+    },
+
+    getBooksByAuthor(author, excludeId) {
+      return State.books.filter(b => b.author === author && b.id !== excludeId).slice(0, 8);
+    },
+
+    renderRelatedBooks(books) {
+      return books.map(b => {
+        const coverUrl = CoverManager.getCoverUrl(b);
+        return `
+          <div class="related-book-card" data-book-id="${b.id}">
+            <div class="related-book-cover">
+              ${coverUrl
+                ? `<img src="${coverUrl}" alt="${b.title}">`
+                : `<div style="font-size: 2rem;">📚</div>`
+              }
+            </div>
+            <div class="related-book-title">${b.title}</div>
+          </div>
+        `;
+      }).join('');
+    },
+
+    getCategoryName(callNumber) {
+      const match = callNumber.match(/^([A-Z]+)/);
+      if (!match) return 'general';
+
+      const category = match[1];
+      const categories = {
+        'BT': 'Systematic Theology',
+        'BS': 'Bible',
+        'BR': 'Church History',
+        'BV': 'Practical Theology',
+        'BX': 'Denominational History',
+        'E': 'History (General)',
+        'F': 'History (Americas)',
+        'P': 'Literature',
+        'Q': 'Science',
+        'R': 'Medicine'
+      };
+
+      return categories[category] || category;
+    },
+
+    getBookAge(year) {
+      const age = new Date().getFullYear() - parseInt(year);
+      if (age === 0) return 'published this year';
+      if (age === 1) return '1 year old';
+      if (age < 10) return `${age} years old`;
+      if (age < 50) return `${Math.floor(age / 10) * 10}+ years old`;
+      if (age < 100) return `almost ${Math.round(age / 10) * 10} years old`;
+      if (age < 200) return `over ${Math.floor(age / 100)} century old`;
+      return `over ${Math.floor(age / 100)} centuries old`;
+    },
+
+    switchTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.book-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.book-tab-content').forEach(c => c.classList.remove('active'));
+
+      // Show selected tab
+      const tab = document.querySelector(`.book-tab[data-tab="${tabName}"]`);
+      const content = document.querySelector(`.book-tab-content[data-tab-content="${tabName}"]`);
+
+      if (tab) tab.classList.add('active');
+      if (content) content.classList.add('active');
+    },
+
+    handleAction(action, book) {
+      switch(action) {
+        case 'favorite':
+          FavoritesManager.toggleFavorite(book);
+          break;
+        case 'reading-list':
+          ReadingListManager.addToList(book);
+          break;
+        case 'share':
+          this.shareBook(book);
+          break;
+      }
+    },
+
+    shareBook(book) {
+      const shareText = `Check out "${book.title}" by ${book.author} from PCC Library`;
+      const shareUrl = window.location.href;
+
+      if (navigator.share) {
+        navigator.share({
+          title: book.title,
+          text: shareText,
+          url: shareUrl
+        }).catch(err => console.log('Share cancelled'));
+      } else {
+        // Fallback: copy to clipboard
+        const textToCopy = `${shareText}\n${shareUrl}`;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          alert('Link copied to clipboard!');
+        });
+      }
+    },
+
+    closeModal() {
+      const modal = document.querySelector('.book-detail-modal');
+      if (modal) {
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+      }
+    }
+  };
+
+  // ==========================================
+  // Sprint 3: Placeholder Managers (Sprint 4 implementation)
+  // ==========================================
+  const FavoritesManager = {
+    toggleFavorite(book) {
+      console.log('Favorite toggled for:', book.title);
+      // Will be implemented in Sprint 4
+    }
+  };
+
+  const ReadingListManager = {
+    addToList(book) {
+      console.log('Added to reading list:', book.title);
+      // Will be implemented in Sprint 4
+    }
+  };
+
+  // ==========================================
   // Initialization
   // ==========================================
   function init() {
@@ -944,8 +1361,12 @@
         SavedSearchesManager.init();
         AdvancedSearchModal.init();
 
+        // Sprint 3 features
+        BookDetailModal.init();
+
         console.log('✅ Enhanced features loaded successfully!');
         console.log('✅ Sprint 2: Search & Discovery features loaded!');
+        console.log('✅ Sprint 3: Rich Book Details & Metadata loaded!');
       }, 1000);
     });
   }
@@ -961,7 +1382,10 @@
     CoverManager,
     FiltersManager,
     AutocompleteManager,
-    SavedSearchesManager
+    SavedSearchesManager,
+    BookDetailModal,
+    FavoritesManager,
+    ReadingListManager
   };
 
 })();
