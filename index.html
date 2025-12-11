@@ -23,7 +23,84 @@
     table.dataTable thead th { background-color: #0B3D91; color: white; }
     .featured { background-color: #fff; padding: 20px; margin: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .featured h2 { color: #0B3D91; margin-top: 0; }
-  </style>
+  
+
+
+
+/* Author Biography Tooltips */
+.author-with-bio {
+    position: relative;
+    cursor: help;
+    color: #0B3D91;
+    text-decoration: underline dotted;
+    font-weight: 500;
+}
+
+.author-tooltip {
+    display: none;
+    position: absolute;
+    background: white;
+    border: 2px solid #0B3D91;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    z-index: 10000;
+    max-width: 450px;
+    min-width: 300px;
+    font-size: 13px;
+    line-height: 1.6;
+    top: 100%;
+    left: 0;
+    margin-top: 5px;
+}
+
+.author-tooltip.show {
+    display: block;
+}
+
+.author-tooltip h4 {
+    margin: 0 0 8px 0;
+    color: #0B3D91;
+    font-size: 16px;
+    font-weight: bold;
+    border-bottom: 2px solid #0B3D91;
+    padding-bottom: 5px;
+}
+
+.author-tooltip .bio-dates {
+    color: #666;
+    font-size: 12px;
+    font-style: italic;
+    margin-bottom: 8px;
+}
+
+.author-tooltip .bio-text {
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.author-tooltip .bio-significance {
+    color: #555;
+    font-style: italic;
+    font-size: 12px;
+    border-top: 1px solid #ddd;
+    padding-top: 8px;
+    margin-top: 8px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .author-tooltip {
+        position: fixed;
+        max-width: 90%;
+        left: 5% !important;
+        right: 5%;
+        top: 50% !important;
+        transform: translateY(-50%);
+    }
+}
+
+</style>
 </head>
 <body>
   <div class="navbar">
@@ -236,7 +313,250 @@
         window.location.href = 'book.html?id=' + encodeURIComponent(id);
       });
     });
-  </script>
+  
+
+
+
+// Author Biography Data
+const authorBiographies = {
+  "John Calvin": {
+    "full_name": "Jean Calvin",
+    "birth_death": "1509-1564",
+    "biography": "John Calvin (1509-1564) was a French theologian, pastor and reformer in Geneva during the Protestant Reformation. He was a principal figure in the development of the system of Christian theology later called Calvinism, including its doctrines of predestination and of God's absolute sovereignty in the salvation of the human soul. Calvin was the most important figure in the second generation of the Protestant Reformation. His magnum opus, the Institutes of the Christian Religion, remains one of the most influential works in Christian theology.",
+    "significance": "French Reformer, theologian, author of Institutes of the Christian Religion"
+  },
+  "Charles Spurgeon": {
+    "full_name": "Charles Haddon Spurgeon",
+    "birth_death": "1834-1892",
+    "biography": "Charles Haddon Spurgeon (1834-1892) was an influential British Baptist preacher known as the 'Prince of Preachers'. He was converted at age 15 and preached his first sermon at 16. By age 19, he became pastor of London's New Park Street Chapel, which later moved to the newly constructed Metropolitan Tabernacle, seating 5,000 people. By his death in 1892, he had preached almost 3,600 sermons and published 49 volumes of commentaries, sayings, anecdotes, illustrations, and devotions. He founded a ministerial college (1856) and an orphanage (1867).",
+    "significance": "Baptist preacher, 'Prince of Preachers', founded Pastors' College"
+  },
+  "Thomas Watson": {
+    "full_name": "Thomas Watson",
+    "birth_death": "c. 1620-1686",
+    "biography": "Thomas Watson (c. 1620-1686) was an English Puritan preacher and author who studied at Emmanuel College, Cambridge. He was vicar of St. Stephen's Walbrook in London until ejected for nonconformity after the Restoration. His most famous work, 'A Body of Practical Divinity' (1692), is a posthumous collection of 176 sermons expounding the Westminster Shorter Catechism. Charles Spurgeon republished this work as the basic systematic theology for his Pastors' College.",
+    "significance": "Puritan preacher, author of 'A Body of Practical Divinity'"
+  },
+  "Joel Beeke": {
+    "full_name": "Joel Robert Beeke",
+    "birth_death": "1952-present",
+    "biography": "Joel Robert Beeke (born 1952) is an American Reformed theologian and pastor. He earned his PhD in Reformation and Post-Reformation historical theology in 1988. He helped found Puritan Reformed Theological Seminary in 1995, serving as its president until 2023 when he became chancellor. He currently serves as pastor at Heritage Reformed Congregation of Grand Rapids, Michigan. Beeke has written and coauthored over 120 books, edited 120 books, and contributed 2,500 articles to Reformed publications. His works have been translated into more than 20 languages.",
+    "significance": "Reformed theologian, President/Chancellor of Puritan Reformed Theological Seminary, prolific author"
+  },
+  "R.C. Sproul": {
+    "full_name": "Robert Charles Sproul",
+    "birth_death": "1939-2017",
+    "biography": "Robert Charles Sproul (1939-2017) was an American Reformed theologian, Christian apologist, and ordained pastor in the Presbyterian Church in America. He was the founder and chairman of Ligonier Ministries and could be heard daily on the 'Renewing Your Mind' radio broadcast internationally. He taught at numerous colleges and seminaries, including Reformed Theological Seminary. Sproul wrote more than 100 books including 'The Holiness of God', 'Essential Truths of the Christian Faith', and 'Chosen by God'. He has been described as 'the greatest and most influential proponent of the recovery of Reformed theology in the last century.'",
+    "significance": "Founder of Ligonier Ministries, Reformed theologian, author of over 100 books"
+  },
+  "Sinclair Ferguson": {
+    "full_name": "Sinclair Buchanan Ferguson",
+    "birth_death": "1948-present",
+    "biography": "Sinclair Buchanan Ferguson (born 1948) is a Scottish Reformed systematic theology scholar. He received his PhD from the University of Aberdeen (1971) and was ordained as a minister in the Church of Scotland in 1971. He served as minister in Scotland (including St George's-Tron in Glasgow) and the USA (First Presbyterian Church, Columbia, S.C.). He was Professor of Systematic Theology at Westminster Theological Seminary in Philadelphia and at Redeemer Seminary in Dallas. Since 2017, he has been Chancellor's Professor of Systematic Theology at Reformed Theological Seminary. He has authored around 50 books.",
+    "significance": "Scottish Reformed theologian, Professor at Westminster Seminary, prolific author"
+  },
+  "Jonathan Edwards": {
+    "full_name": "Jonathan Edwards",
+    "birth_death": "1703-1758",
+    "biography": "Jonathan Edwards (1703-1758) was an American theologian and philosopher, considered the greatest theologian of British American Puritanism. Born in East Windsor, Connecticut, he entered Yale at age 13 and graduated in 1720. Edwards played a critical role in shaping the First Great Awakening and oversaw revivals in 1733-35 at his church in Northampton, Massachusetts. He delivered the famous sermon 'Sinners in the Hands of an Angry God' in 1741. After his dismissal from Northampton in 1750, he served at a Native American mission in Stockbridge until 1758. He died shortly after becoming president of the College of New Jersey (Princeton) from a smallpox inoculation.",
+    "significance": "American theologian, philosopher, key figure in the Great Awakening"
+  },
+  "John Bunyan": {
+    "full_name": "John Bunyan",
+    "birth_death": "1628-1688",
+    "biography": "John Bunyan (1628-1688) was an English writer and nonconformist preacher, best remembered as the author of the Christian allegory 'The Pilgrim's Progress'. Born in Elstow, Bedfordshire, he worked as a tinker before serving in the Parliamentary army. His conversion to Puritanism was gradual, occurring in the years following his marriage (1650-55). Bunyan was arrested in 1660 for preaching without the approval of the Anglican Church and was imprisoned for more than twelve years. During his imprisonment, he wrote 'The Pilgrim's Progress' (published 1678), which became one of the most published books in the English language, with 1,300 editions printed by 1938.",
+    "significance": "Puritan preacher and author of 'The Pilgrim's Progress', one of the most influential Christian allegories"
+  },
+  "Matthew Henry": {
+    "full_name": "Matthew Henry",
+    "birth_death": "1662-1714",
+    "biography": "Matthew Henry (1662-1714) was a British Nonconformist and Presbyterian minister born in Wales. His father, Philip Henry, was ejected under the Act of Uniformity 1662. Matthew studied theology at the Islington Academy under Thomas Doolittle. He was ordained in 1687 and became minister of a Presbyterian congregation at Chester, where he pastored for 25 years (1687-1712). He then moved to Mare Street, Hackney, where he died suddenly in 1714. He is best known for his six-volume biblical commentary 'Exposition of the Old and New Testaments' (1708-10), which provides exhaustive verse-by-verse study of Scripture.",
+    "significance": "Presbyterian minister, author of influential Bible commentary"
+  },
+  "John Owen": {
+    "full_name": "John Owen",
+    "birth_death": "1616-1683",
+    "biography": "John Owen (1616-1683) was an English Puritan and Nonconformist church leader, theologian and vice-chancellor of the University of Oxford. During the English Civil War he preached before parliament and served as chaplain to Oliver Cromwell. He is regarded as one of the most prominent Reformed theologians of the seventeenth century. Owen wrote prolifically on sin, human depravity, the atonement and communion with God. His major works include 'The Mortification of Sin' (1656), 'Communion with God' (1657), and 'The Death of Death in the Death of Christ' (1648).",
+    "significance": "Puritan theologian, vice-chancellor of Oxford, prolific writer on Reformed theology"
+  },
+  "JJ Lim": {
+    "full_name": "Lim Juay Jeen (J.J. Lim)",
+    "birth_death": "1970s-present",
+    "biography": "Pastor J.J. Lim graduated from the Far Eastern Bible College in 1997 and was ordained as pastor of Pilgrim Covenant Church (PCC) in Singapore in October 1999, where he continues to minister. Pastor Lim teaches, writes study notes on classic Reformed confessions and catechisms, and leads a series on 'the exceeding great and precious promises of God' found throughout Scripture. He has authored numerous works including explanatory notes on the Westminster Shorter Catechism, Heidelberg Catechism, and Westminster Confession of Faith, as well as 'Covenant Theology: A Primer'.",
+    "significance": "Pastor of Pilgrim Covenant Church Singapore, author of Reformed study materials"
+  },
+  "Linus Chua": {
+    "full_name": "Linus K.H. Chua",
+    "birth_death": "1970s-present",
+    "biography": "Linus Chua is a member of Pilgrim Covenant Church in Singapore and has pursued an M.Div degree with Whitefield Theological Seminary in preparation for pastoral ministry. He serves as an associate pastor at PCC and preaches regularly. He wrote introductory books to explain the Reformed catechisms and Christ's teaching in the Sermon on the Mount, including 'Not to Destroy, But to Fulfill: An Exposition of Matthew 5:17-48' (2018) and 'Catechism in Conversation' (2nd ed., 2011).",
+    "significance": "Associate pastor at Pilgrim Covenant Church Singapore, author on Reformed catechisms"
+  },
+  "Carine MacKenzie": {
+    "full_name": "Carine MacKenzie",
+    "birth_death": "active 1970s-present",
+    "biography": "Carine MacKenzie is a prolific Scottish children's author who writes Christian literature. She lives in Inverness, Scotland and is a member of the Associated Presbyterian Church. Her talent for retelling Bible stories has meant that children from all over the world have been given the opportunity to discover Jesus Christ for themselves. She has just under 150 different titles in print and sales of over 3 million books. Her books are widely distributed through Reformed Christian publishers like Reformation Heritage Books and Christian Focus Publications.",
+    "significance": "Prolific children's author with 150+ titles, over 3 million books sold"
+  },
+  "Catherine MacKenzie": {
+    "full_name": "Catherine MacKenzie",
+    "birth_death": "active 1990s-present",
+    "biography": "Catherine MacKenzie comes from Scotland and has written several biographies for young teens in the Trailblazers series as well as other titles for younger children. She is the Children's Editor at Christian Focus Publications, where she oversees the editorial and illustrations for the children's books. She has been writing biographies for Christian Focus Publications for sixteen years and all of her children's material is written with the theme of 'redeeming love'. Her published works include the Trailblazers biography series, the Little Lights series featuring Christian historical figures, and various board books.",
+    "significance": "Children's Editor at Christian Focus Publications, author of Trailblazers series"
+  },
+  "Martha Finley": {
+    "full_name": "Martha Farquharson Finley",
+    "birth_death": "1828-1909",
+    "biography": "Martha Finley (April 26, 1828 \u2013 January 30, 1909) was an American teacher and author of numerous works for children, best known for the 28-volume Elsie Dinsmore series which was published over a span of 38 years. Born in Chillicothe, Ohio, to Presbyterian minister Dr. James Brown Finley, she was educated at home by tutors and attended various private schools. She began her literary career in 1853, writing under the pen name 'Martha Farquharson' at her family's request. The Elsie Dinsmore series became 'the most popular and longest running girl's series of the 19th century', with the first volume selling nearly 300,000 copies in its first decade and over 5 million copies in the 20th century.",
+    "significance": "19th century author of the bestselling Elsie Dinsmore series (28 volumes, 25 million readers)"
+  },
+  "Peter Masters": {
+    "full_name": "Peter Masters",
+    "birth_death": "1939-present",
+    "biography": "Peter Masters has been the Minister of the Metropolitan Tabernacle in central London since 1970, the historic church where Charles H. Spurgeon served from 1854 to 1892. He founded the Evangelical Times, an evangelical newspaper, in 1967. Masters edits the international magazine Sword & Trowel (started by Charles Spurgeon in 1865). He initiated the London Reformed Baptist Seminary in 1976 and directs both the seminary and the School of Theology, an annual conference for pastors and Christian workers. Masters has authored over 30 books, which have been translated into at least 28 languages. He is known for his Reformed Baptist theological perspective and emphasis on expository preaching.",
+    "significance": "Minister of Metropolitan Tabernacle since 1970, author of 30+ books, founded London Reformed Baptist Seminary"
+  },
+  "Ken Ham": {
+    "full_name": "Kenneth Alfred Ham",
+    "birth_death": "1951-present",
+    "biography": "Kenneth Alfred Ham (born October 20, 1951) is an Australian-American Christian fundamentalist and young Earth creationist. He moved to America in 1987 and founded Answers in Genesis in 1997. Ham is the founder of the Creation Museum in Petersburg, Kentucky (opened 2007), which features world-class exhibits including animatronic dinosaurs, and the Ark Encounter, which features a life-size 510-foot-long Noah's Ark. He became internationally known for his 2014 creation/evolution debate with Bill Nye 'the Science Guy,' which has been watched by an estimated 25 million people. He is heard daily on the radio feature 'Answers with Ken Ham' (broadcast on more than 1,000 stations) and is author of more than 30 books.",
+    "significance": "Founder of Answers in Genesis, Creation Museum, and Ark Encounter; young Earth creationist author and speaker"
+  },
+  "Paul White": {
+    "full_name": "Paul Hamilton Hume White",
+    "birth_death": "1910-1992",
+    "biography": "Paul Hamilton Hume White (26 February 1910 \u2013 21 December 1992) was an Australian missionary, evangelist, radio program host and author, best known as the 'Jungle Doctor.' After studying medicine at the University of Sydney, he married Mary Bellingham and together they travelled to Tanganyika Territory (now part of Tanzania) as Church Missionary Society (CMS) missionaries in 1938. White established a hospital at Mvumi Mission, learning Chigogo and Swahili to serve countless patients. He had to return to Australia in 1941 due to his wife's illness. Unable to return to Africa, he wrote over 50 books, which were translated into more than 100 languages with sales estimated at over one million copies. He also hosted the Jungle Doctor radio program for 25 years.",
+    "significance": "Australian medical missionary to Tanzania, author of 50+ Jungle Doctor books with over 1 million copies sold"
+  },
+  "Tedd Tripp": {
+    "full_name": "Tedd Tripp",
+    "birth_death": "active 1980s-present",
+    "biography": "Tedd Tripp holds a B.A. from Geneva College (in History), M.Div. from Philadelphia Theological Seminary, and D.Min. from Westminster Theological Seminary (with an emphasis in Pastoral Counseling). He is the president of Shepherding the Heart Ministries, and is Pastor Emeritus of Grace Fellowship Church in Hazleton, Pennsylvania, where he served from 1980 until 2012. Dr. Tripp draws on his thirty years experience as a pastor, counselor, school administrator, and father. His book 'Shepherding a Child's Heart' (1995) has been described as one of the most popular Christian parenting books and required reading at many Christian parenting courses. He has taught on parenting to thousands of young parents across the country and in many other parts of the world.",
+    "significance": "Pastor, biblical counselor, author of 'Shepherding a Child's Heart', president of Shepherding the Heart Ministries"
+  },
+  "Jay Adams": {
+    "full_name": "Jay Edward Adams",
+    "birth_death": "1929-2020",
+    "biography": "Jay Edward Adams (January 30, 1929 \u2013 November 14, 2020) was an American Reformed theologian and author best known for developing and promoting nouthetic counseling. Born in Baltimore, Maryland, he converted to Christianity during his teenage years. He earned degrees from Johns Hopkins University, Temple University, and the University of Missouri. Adams co-founded the Christian Counseling and Educational Foundation (CCEF) in 1968. His groundbreaking book 'Competent to Counsel' (1970) launched the modern biblical counseling movement, outlined a counseling methodology based on admonition, confrontation, and biblical instruction. The book sold about 400,000 copies and was translated into many languages. Adams authored over 100 books on theology, pastoral ministry, and Christian counseling.",
+    "significance": "Founder of nouthetic/biblical counseling movement, co-founded CCEF, author of 'Competent to Counsel' and 100+ books"
+  },
+  "John Piper": {
+    "full_name": "John Stephen Piper",
+    "birth_death": "1946-present",
+    "biography": "John Stephen Piper (born January 11, 1946) is a Reformed Baptist theologian and retired pastor who is currently chancellor of Bethlehem College and Seminary in Minneapolis, Minnesota. Son of an itinerant evangelist, he studied English literature at Wheaton College (1964\u20131968), received a Bachelor of Divinity at Fuller Theological Seminary (1968\u20131971), and earned a doctorate from the University of Munich (1971\u20131974). Piper served as pastor for preaching and vision of Bethlehem Baptist Church for 33 years (1980\u20132013). In 1994, he founded Desiring God Ministries to spread a passion for the supremacy of God in all things. He is the founder and senior teacher of desiringgod.org, named for his book 'Desiring God: Meditations of a Christian Hedonist' (1986). He became especially known for the Ask Pastor John podcast.",
+    "significance": "Pastor of Bethlehem Baptist Church (33 years), founder of Desiring God Ministries, chancellor of Bethlehem College & Seminary"
+  },
+  "D.A. Carson": {
+    "full_name": "Donald Arthur Carson",
+    "birth_death": "1946-present",
+    "biography": "Donald Arthur Carson (born December 21, 1946) is a Canadian-born evangelical theologian and biblical scholar who is a Distinguished Emeritus Professor of New Testament at Trinity Evangelical Divinity School and president and co-founder of the Gospel Coalition. Carson earned a Bachelor of Science in chemistry at McGill University, a Master of Divinity from Central Baptist Seminary in Toronto, and a Ph.D. in New Testament from the University of Cambridge, where he studied under Barnabas Lindars. He joined Trinity Evangelical Divinity School in 1978 and served as Research Professor of New Testament from 1991 to 2018. He has written or edited about sixty books and served as president of the Evangelical Theological Society in 2022. In 2005, Carson founded The Gospel Coalition along with pastor Tim Keller.",
+    "significance": "Distinguished Emeritus Professor of New Testament at TEDS, co-founder of The Gospel Coalition, author of 60+ books"
+  },
+  "Wayne Mack": {
+    "full_name": "Wayne A. Mack",
+    "birth_death": "1935-2025",
+    "biography": "Wayne A. Mack (1935\u20132025) was a graduate of Wheaton College (BA), Philadelphia Seminary (MDiv, Greek), and Westminster Theological Seminary (D.Min \u2013 Research project on marriage and family counseling). From 1958 to 1976 Wayne served as a pastor in local churches. He was chairman of the graduate and undergraduate counseling programs at The Master's University and Seminary in Los Angeles, California. In 1992 Wayne planned and supervised the development of the Master of Arts in Biblical Counseling program at The Master's College in Santa Clarita, California. He also counseled and taught at CCEF (Christian Counseling and Educational Foundation) for fifteen years. Wayne was a charter member of the Association of Certified Biblical Counselors and served as an executive board member. He was the author of more than two dozen books on biblical counseling and practical Christian life issues.",
+    "significance": "Chairman of counseling programs at The Master's University, taught at CCEF for 15 years, charter member of ACBC, author of 24+ books"
+  }
+};
+
+// Initialize author bio tooltips
+function initializeAuthorTooltips() {{
+    // Get all table cells with author names
+    const table = document.querySelector('#catalogue-table');
+    if (!table) return;
+
+    // Use DataTables API if available
+    if ($.fn.DataTable.isDataTable('#catalogue-table')) {{
+        const dataTable = $('#catalogue-table').DataTable();
+
+        // Add draw callback to reinitialize tooltips after table redraws
+        dataTable.on('draw', function() {{
+            attachTooltipsToAuthors();
+        }});
+    }}
+
+    // Initial attachment
+    attachTooltipsToAuthors();
+}}
+
+function attachTooltipsToAuthors() {{
+    // Find all author cells (first column in table)
+    const rows = document.querySelectorAll('#catalogue-table tbody tr');
+
+    rows.forEach(row => {{
+        const authorCell = row.querySelector('td:first-child');
+        if (!authorCell) return;
+
+        const authorName = authorCell.textContent.trim();
+
+        // Check if this author has a biography
+        if (authorBiographies[authorName]) {{
+            // Add styling class
+            authorCell.classList.add('author-with-bio');
+
+            // Remove existing tooltip if any
+            const existingTooltip = authorCell.querySelector('.author-tooltip');
+            if (existingTooltip) existingTooltip.remove();
+
+            // Create tooltip element
+            const tooltip = createAuthorTooltip(authorName, authorBiographies[authorName]);
+            authorCell.style.position = 'relative';
+            authorCell.appendChild(tooltip);
+
+            // Add hover events
+            authorCell.addEventListener('mouseenter', () => {{
+                tooltip.classList.add('show');
+            }});
+
+            authorCell.addEventListener('mouseleave', () => {{
+                tooltip.classList.remove('show');
+            }});
+
+            // Add click event for mobile
+            authorCell.addEventListener('click', (e) => {{
+                e.stopPropagation();
+                tooltip.classList.toggle('show');
+            }});
+        }}
+    }});
+}}
+
+function createAuthorTooltip(name, bio) {{
+    const tooltip = document.createElement('div');
+    tooltip.className = 'author-tooltip';
+
+    let html = `<h4>${{name}}</h4>`;
+
+    if (bio.birth_death) {{
+        html += `<div class="bio-dates">${{bio.birth_death}}</div>`;
+    }}
+
+    if (bio.biography) {{
+        html += `<div class="bio-text">${{bio.biography}}</div>`;
+    }}
+
+    if (bio.significance) {{
+        html += `<div class="bio-significance"><strong>Known for:</strong> ${{bio.significance}}</div>`;
+    }}
+
+    tooltip.innerHTML = html;
+    return tooltip;
+}}
+
+// Close tooltips when clicking outside
+document.addEventListener('click', () => {{
+    document.querySelectorAll('.author-tooltip.show').forEach(tooltip => {{
+        tooltip.classList.remove('show');
+    }});
+}});
+
+// Initialize when document is ready
+$(document).ready(function() {{
+    // Wait for DataTable to initialize first
+    setTimeout(initializeAuthorTooltips, 500);
+}});
+
+</script>
 </body>
 </html>
 
