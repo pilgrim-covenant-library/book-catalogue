@@ -25,8 +25,6 @@
     .featured h2 { color: #0B3D91; margin-top: 0; }
   
 
-
-
 /* Author Biography Tooltips */
 .author-with-bio {
     position: relative;
@@ -283,8 +281,6 @@
     });
   
 
-
-
 // Author Biography Data
 const authorBiographies = {
   "John Calvin": {
@@ -477,6 +473,48 @@ function initializeAuthorTooltips() {
     attachTooltipsToAuthors();
 }
 
+function normalizeAuthorName(name) {
+    // Remove Chinese characters in parentheses
+    let normalized = name.replace(/[一-龥]+\s*\([^)]*\)/g, '').trim();
+    // Remove parenthetical content like (John Calvin)
+    normalized = normalized.replace(/\s*\([^)]*\)/g, '').trim();
+    // Remove Jr., Sr., III, etc.
+    normalized = normalized.replace(/\s+(Jr\.?|Sr\.?|III|II|IV)$/i, '').trim();
+    // Remove extra spaces and normalize case
+    normalized = normalized.replace(/\s+/g, ' ').trim();
+    return normalized;
+}
+
+function findAuthorBio(authorName) {
+    // Try exact match first
+    if (authorBiographies[authorName]) {
+        return { key: authorName, bio: authorBiographies[authorName] };
+    }
+
+    // Try normalized name
+    const normalized = normalizeAuthorName(authorName);
+    if (authorBiographies[normalized]) {
+        return { key: normalized, bio: authorBiographies[normalized] };
+    }
+
+    // Try case-insensitive match
+    for (const bioName in authorBiographies) {
+        if (bioName.toLowerCase() === normalized.toLowerCase()) {
+            return { key: bioName, bio: authorBiographies[bioName] };
+        }
+    }
+
+    // Try normalized bio name match
+    for (const bioName in authorBiographies) {
+        const normalizedBioName = normalizeAuthorName(bioName);
+        if (normalizedBioName.toLowerCase() === normalized.toLowerCase()) {
+            return { key: bioName, bio: authorBiographies[bioName] };
+        }
+    }
+
+    return null;
+}
+
 function attachTooltipsToAuthors() {
     // Find all author cells (first column in table)
     const rows = document.querySelectorAll('#catalogue-table tbody tr');
@@ -487,8 +525,9 @@ function attachTooltipsToAuthors() {
 
         const authorName = authorCell.textContent.trim();
 
-        // Check if this author has a biography
-        if (authorBiographies[authorName]) {
+        // Check if this author has a biography (with fuzzy matching)
+        const bioMatch = findAuthorBio(authorName);
+        if (bioMatch) {
             // Add styling class
             authorCell.classList.add('author-with-bio');
 
@@ -497,7 +536,7 @@ function attachTooltipsToAuthors() {
             if (existingTooltip) existingTooltip.remove();
 
             // Create tooltip element
-            const tooltip = createAuthorTooltip(authorName, authorBiographies[authorName]);
+            const tooltip = createAuthorTooltip(bioMatch.key, bioMatch.bio);
             authorCell.style.position = 'relative';
             authorCell.appendChild(tooltip);
 
