@@ -299,18 +299,40 @@
     init() {
       const searchInput = document.querySelector('.main-search-input');
       if (searchInput) {
+        console.log('✅ Search input found, attaching listener');
         searchInput.addEventListener('input', this.debounce((e) => {
+          console.log('🔍 Search query:', e.target.value);
           this.performSearch(e.target.value);
         }, 300));
+
+        // Also listen for Enter key
+        searchInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            console.log('🔍 Enter pressed, searching:', e.target.value);
+            this.performSearch(e.target.value);
+          }
+        });
+      } else {
+        console.error('❌ Search input not found!');
       }
     },
 
     performSearch(query) {
+      console.log('📊 Current view:', State.currentView);
+      console.log('📚 Total books in State:', State.books.length);
+
       // If in table view, use DataTables search
       if (State.currentView === 'table') {
-        const table = $('#catalogue-table').DataTable();
-        if (table) {
-          table.search(query).draw();
+        try {
+          const table = $('#catalogue-table').DataTable();
+          if (table) {
+            console.log('✅ DataTable found, searching...');
+            table.search(query).draw();
+          } else {
+            console.error('❌ DataTable not found!');
+          }
+        } catch (error) {
+          console.error('❌ DataTable error:', error);
         }
         return;
       }
@@ -320,9 +342,13 @@
         State.filteredBooks = [];
         ViewManager.renderBooks();
         // Clear DataTable search too
-        const table = $('#catalogue-table').DataTable();
-        if (table) {
-          table.search('').draw();
+        try {
+          const table = $('#catalogue-table').DataTable();
+          if (table) {
+            table.search('').draw();
+          }
+        } catch (error) {
+          // DataTable might not be initialized yet
         }
         return;
       }
@@ -335,6 +361,7 @@
                (book.year && book.year.toString().includes(query));
       });
 
+      console.log('🔍 Filtered books:', State.filteredBooks.length);
       ViewManager.renderBooks();
     },
 
