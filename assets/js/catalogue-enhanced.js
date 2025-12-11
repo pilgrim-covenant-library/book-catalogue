@@ -402,6 +402,526 @@
   };
 
   // ==========================================
+  // Sprint 2: Faceted Filters Manager
+  // ==========================================
+  const FiltersManager = {
+    init() {
+      this.buildFilters();
+      this.attachListeners();
+    },
+
+    buildFilters() {
+      // Extract unique authors, years, categories from books
+      const authors = [...new Set(State.books.map(b => b.author))].sort();
+      const years = [...new Set(State.books.map(b => b.year).filter(y => y))].sort((a, b) => b - a);
+
+      // Categorize books by call number patterns
+      const categories = this.extractCategories();
+
+      // Count books with e-books and bios
+      const hasEbook = State.books.filter(b => window.ebookLinks && window.ebookLinks[`${b.author} - ${b.title}`]).length;
+      const hasBio = State.books.filter(b => window.authorBiographies && window.authorBiographies[b.author]).length;
+
+      State.filterOptions = {
+        authors,
+        years,
+        categories,
+        hasEbook,
+        hasBio
+      };
+
+      State.activeFilters = {
+        authors: [],
+        yearRange: [Math.min(...years), Math.max(...years)],
+        categories: [],
+        hasEbook: false,
+        hasBio: false
+      };
+    },
+
+    extractCategories() {
+      const categories = new Map();
+
+      State.books.forEach(book => {
+        if (!book.callNumber) return;
+
+        // Extract category from call number (first letters/numbers)
+        const match = book.callNumber.match(/^([A-Z]+)/);
+        if (match) {
+          const cat = match[1];
+          categories.set(cat, (categories.get(cat) || 0) + 1);
+        }
+      });
+
+      return Array.from(categories.entries())
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count);
+    },
+
+    attachListeners() {
+      // Filters toggle
+      const toggle = document.querySelector('.filters-toggle');
+      if (toggle) {
+        toggle.addEventListener('click', this.toggleFilters.bind(this));
+      }
+
+      // Clear filters
+      const clearBtn = document.querySelector('.clear-filters');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', this.clearFilters.bind(this));
+      }
+
+      // Filter checkboxes
+      document.querySelectorAll('.filter-checkbox input').forEach(checkbox => {
+        checkbox.addEventListener('change', this.applyFilters.bind(this));
+      });
+    },
+
+    toggleFilters() {
+      const sidebar = document.querySelector('.filters-sidebar');
+      const mainContainer = document.querySelector('.main-container');
+
+      if (sidebar) {
+        sidebar.classList.toggle('collapsed');
+        mainContainer.classList.toggle('filters-collapsed');
+        mainContainer.classList.toggle('with-filters');
+      }
+    },
+
+    applyFilters() {
+      // Get selected filters
+      const authorChecks = document.querySelectorAll('.filter-authors input:checked');
+      const categoryChecks = document.querySelectorAll('.filter-categories input:checked');
+      const hasEbookCheck = document.querySelector('.filter-ebook input:checked');
+      const hasBioCheck = document.querySelector('.filter-bio input:checked');
+
+      State.activeFilters.authors = Array.from(authorChecks).map(cb => cb.value);
+      State.activeFilters.categories = Array.from(categoryChecks).map(cb => cb.value);
+      State.activeFilters.hasEbook = !!hasEbookCheck;
+      State.activeFilters.hasBio = !!hasBioCheck;
+
+      // Filter books
+      State.filteredBooks = State.books.filter(book => {
+        // Author filter
+        if (State.activeFilters.authors.length > 0 && !State.activeFilters.authors.includes(book.author)) {
+          return false;
+        }
+
+        // Category filter
+        if (State.activeFilters.categories.length > 0) {
+          const bookCat = book.callNumber ? book.callNumber.match(/^([A-Z]+)/)?.[1] : null;
+          if (!bookCat || !State.activeFilters.categories.includes(bookCat)) {
+            return false;
+          }
+        }
+
+        // E-book filter
+        if (State.activeFilters.hasEbook) {
+          const hasEbook = window.ebookLinks && window.ebookLinks[`${book.author} - ${book.title}`];
+          if (!hasEbook) return false;
+        }
+
+        // Bio filter
+        if (State.activeFilters.hasBio) {
+          const hasBio = window.authorBiographies && window.authorBiographies[book.author];
+          if (!hasBio) return false;
+        }
+
+        // Year range filter
+        if (book.year) {
+          if (book.year < State.activeFilters.yearRange[0] || book.year > State.activeFilters.yearRange[1]) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+
+      ViewManager.renderBooks();
+      this.updateActiveFiltersDisplay();
+    },
+
+    clearFilters() {
+      State.activeFilters = {
+        authors: [],
+        yearRange: [Math.min(...State.filterOptions.years), Math.max(...State.filterOptions.years)],
+        categories: [],
+        hasEbook: false,
+        hasBio: false
+      };
+
+      // Uncheck all checkboxes
+      document.querySelectorAll('.filter-checkbox input').forEach(cb => cb.checked = false);
+
+      State.filteredBooks = [];
+      ViewManager.renderBooks();
+      this.updateActiveFiltersDisplay();
+    },
+
+    updateActiveFiltersDisplay() {
+      const container = document.querySelector('.active-filters');
+      if (!container) return;
+
+      const filters = [];
+
+      State.activeFilters.authors.forEach(author => {
+        filters.push({ type: 'author', value: author, label: `Author: ${author}` });
+      });
+
+      State.activeFilters.categories.forEach(cat => {
+        filters.push({ type: 'category', value: cat, label: `Category: ${cat}` });
+      });
+
+      if (State.activeFilters.hasEbook) {
+        filters.push({ type: 'ebook', value: true, label: 'Has E-book' });
+      }
+
+      if (State.activeFilters.hasBio) {
+        filters.push({ type: 'bio', value: true, label: 'Has Biography' });
+      }
+
+      if (filters.length === 0) {
+        container.innerHTML = '';
+        container.style.display = 'none';
+        return;
+      }
+
+      container.style.display = 'flex';
+      container.innerHTML = filters.map(f => `
+        <div class="active-filter-chip">
+          <span>${f.label}</span>
+          <button class="remove-filter" data-type="${f.type}" data-value="${f.value}">×</button>
+        </div>
+      `).join('');
+
+      // Attach remove listeners
+      container.querySelectorAll('.remove-filter').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const type = e.target.dataset.type;
+          const value = e.target.dataset.value;
+          this.removeFilter(type, value);
+        });
+      });
+    },
+
+    removeFilter(type, value) {
+      switch(type) {
+        case 'author':
+          State.activeFilters.authors = State.activeFilters.authors.filter(a => a !== value);
+          break;
+        case 'category':
+          State.activeFilters.categories = State.activeFilters.categories.filter(c => c !== value);
+          break;
+        case 'ebook':
+          State.activeFilters.hasEbook = false;
+          break;
+        case 'bio':
+          State.activeFilters.hasBio = false;
+          break;
+      }
+
+      // Update UI
+      const checkbox = document.querySelector(`.filter-checkbox input[value="${value}"]`);
+      if (checkbox) checkbox.checked = false;
+
+      this.applyFilters();
+    }
+  };
+
+  // ==========================================
+  // Sprint 2: Autocomplete Manager
+  // ==========================================
+  const AutocompleteManager = {
+    init() {
+      const searchInput = document.querySelector('.main-search-input');
+      if (!searchInput) return;
+
+      // Create autocomplete dropdown
+      const dropdown = document.createElement('div');
+      dropdown.className = 'autocomplete-dropdown';
+      searchInput.parentElement.style.position = 'relative';
+      searchInput.parentElement.appendChild(dropdown);
+
+      searchInput.addEventListener('input', this.debounce((e) => {
+        this.showSuggestions(e.target.value, dropdown);
+      }, 200));
+
+      // Hide on blur (with delay for click to register)
+      searchInput.addEventListener('blur', () => {
+        setTimeout(() => dropdown.classList.remove('show'), 200);
+      });
+
+      // Show on focus if has value
+      searchInput.addEventListener('focus', (e) => {
+        if (e.target.value.trim()) {
+          this.showSuggestions(e.target.value, dropdown);
+        }
+      });
+    },
+
+    showSuggestions(query, dropdown) {
+      if (!query.trim() || query.length < 2) {
+        dropdown.classList.remove('show');
+        return;
+      }
+
+      const lowerQuery = query.toLowerCase();
+      const suggestions = [];
+
+      // Find matching books
+      State.books.forEach(book => {
+        const titleMatch = book.title.toLowerCase().includes(lowerQuery);
+        const authorMatch = book.author.toLowerCase().includes(lowerQuery);
+
+        if (titleMatch || authorMatch) {
+          suggestions.push({
+            type: 'book',
+            book,
+            relevance: titleMatch ? 2 : 1 // Title matches are more relevant
+          });
+        }
+      });
+
+      // Sort by relevance and limit
+      suggestions.sort((a, b) => b.relevance - a.relevance);
+      const topSuggestions = suggestions.slice(0, 8);
+
+      if (topSuggestions.length === 0) {
+        dropdown.classList.remove('show');
+        return;
+      }
+
+      // Render suggestions
+      dropdown.innerHTML = topSuggestions.map(s => {
+        const book = s.book;
+        const titleHighlighted = this.highlightMatch(book.title, query);
+        const authorHighlighted = this.highlightMatch(book.author, query);
+
+        return `
+          <div class="autocomplete-item" data-book-id="${book.id}">
+            <div class="autocomplete-item-title">${titleHighlighted}</div>
+            <div class="autocomplete-item-meta">${authorHighlighted} ${book.year ? `• ${book.year}` : ''}</div>
+          </div>
+        `;
+      }).join('');
+
+      dropdown.classList.add('show');
+
+      // Attach click handlers
+      dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const bookId = item.dataset.bookId;
+          this.selectBook(bookId);
+          dropdown.classList.remove('show');
+        });
+      });
+    },
+
+    highlightMatch(text, query) {
+      const regex = new RegExp(`(${query})`, 'gi');
+      return text.replace(regex, '<span class="autocomplete-highlight">$1</span>');
+    },
+
+    selectBook(bookId) {
+      // Find and highlight the book in current view
+      const book = State.books.find(b => b.id === bookId);
+      if (!book) return;
+
+      // If in table view, use DataTables search
+      if (State.currentView === 'table') {
+        const table = $('#catalogue-table').DataTable();
+        table.search(book.title).draw();
+      } else {
+        // Filter to show just this book
+        State.filteredBooks = [book];
+        ViewManager.renderBooks();
+      }
+    },
+
+    debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+  };
+
+  // ==========================================
+  // Sprint 2: Saved Searches Manager
+  // ==========================================
+  const SavedSearchesManager = {
+    STORAGE_KEY: 'pcc_saved_searches',
+
+    init() {
+      this.loadSavedSearches();
+      this.attachListeners();
+    },
+
+    loadSavedSearches() {
+      const saved = localStorage.getItem(this.STORAGE_KEY);
+      State.savedSearches = saved ? JSON.parse(saved) : [];
+    },
+
+    saveSearch(name, query, filters) {
+      const search = {
+        id: Date.now(),
+        name,
+        query,
+        filters,
+        createdAt: new Date().toISOString()
+      };
+
+      State.savedSearches.push(search);
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(State.savedSearches));
+      this.renderSavedSearches();
+    },
+
+    deleteSearch(id) {
+      State.savedSearches = State.savedSearches.filter(s => s.id !== id);
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(State.savedSearches));
+      this.renderSavedSearches();
+    },
+
+    applySavedSearch(id) {
+      const search = State.savedSearches.find(s => s.id === id);
+      if (!search) return;
+
+      // Apply the saved query and filters
+      const searchInput = document.querySelector('.main-search-input');
+      if (searchInput) {
+        searchInput.value = search.query;
+        SearchManager.performSearch(search.query);
+      }
+
+      if (search.filters) {
+        State.activeFilters = { ...search.filters };
+        FiltersManager.applyFilters();
+      }
+    },
+
+    renderSavedSearches() {
+      const container = document.querySelector('.saved-searches');
+      if (!container) return;
+
+      if (State.savedSearches.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.9rem;">No saved searches yet</p>';
+        return;
+      }
+
+      container.innerHTML = State.savedSearches.map(s => `
+        <div class="saved-search-item" data-search-id="${s.id}">
+          <div>
+            <div class="saved-search-name">${s.name}</div>
+            <div class="saved-search-query">${s.query || 'All books'}</div>
+          </div>
+          <button class="delete-saved-search" data-search-id="${s.id}">🗑️</button>
+        </div>
+      `).join('');
+
+      // Attach listeners
+      container.querySelectorAll('.saved-search-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+          if (!e.target.classList.contains('delete-saved-search')) {
+            this.applySavedSearch(parseInt(item.dataset.searchId));
+          }
+        });
+      });
+
+      container.querySelectorAll('.delete-saved-search').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.deleteSearch(parseInt(btn.dataset.searchId));
+        });
+      });
+    },
+
+    attachListeners() {
+      // Add save search button functionality (will be in advanced search modal)
+      const saveBtn = document.querySelector('.save-search-btn');
+      if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+          const name = prompt('Enter a name for this search:');
+          if (name) {
+            const query = document.querySelector('.main-search-input').value;
+            this.saveSearch(name, query, State.activeFilters);
+          }
+        });
+      }
+    }
+  };
+
+  // ==========================================
+  // Sprint 2: Advanced Search Modal
+  // ==========================================
+  const AdvancedSearchModal = {
+    init() {
+      this.attachListeners();
+    },
+
+    attachListeners() {
+      const openBtn = document.querySelector('.advanced-search-btn');
+      const modal = document.querySelector('.advanced-search-modal');
+      const closeBtn = document.querySelector('.close-modal');
+
+      if (openBtn && modal) {
+        openBtn.addEventListener('click', () => modal.classList.add('show'));
+      }
+
+      if (closeBtn && modal) {
+        closeBtn.addEventListener('click', () => modal.classList.remove('show'));
+      }
+
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.classList.remove('show');
+          }
+        });
+      }
+
+      // Advanced search form submission
+      const searchForm = document.querySelector('.advanced-search-form');
+      if (searchForm) {
+        searchForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.performAdvancedSearch();
+        });
+      }
+    },
+
+    performAdvancedSearch() {
+      const titleInput = document.querySelector('.adv-search-title');
+      const authorInput = document.querySelector('.adv-search-author');
+      const yearFromInput = document.querySelector('.adv-search-year-from');
+      const yearToInput = document.querySelector('.adv-search-year-to');
+
+      State.filteredBooks = State.books.filter(book => {
+        if (titleInput.value && !book.title.toLowerCase().includes(titleInput.value.toLowerCase())) {
+          return false;
+        }
+
+        if (authorInput.value && !book.author.toLowerCase().includes(authorInput.value.toLowerCase())) {
+          return false;
+        }
+
+        if (yearFromInput.value && book.year && book.year < parseInt(yearFromInput.value)) {
+          return false;
+        }
+
+        if (yearToInput.value && book.year && book.year > parseInt(yearToInput.value)) {
+          return false;
+        }
+
+        return true;
+      });
+
+      ViewManager.renderBooks();
+      document.querySelector('.advanced-search-modal').classList.remove('show');
+    }
+  };
+
+  // ==========================================
   // Initialization
   // ==========================================
   function init() {
@@ -418,7 +938,14 @@
         ViewManager.init();
         SearchManager.init();
 
+        // Sprint 2 features
+        FiltersManager.init();
+        AutocompleteManager.init();
+        SavedSearchesManager.init();
+        AdvancedSearchModal.init();
+
         console.log('✅ Enhanced features loaded successfully!');
+        console.log('✅ Sprint 2: Search & Discovery features loaded!');
       }, 1000);
     });
   }
@@ -431,7 +958,10 @@
     State,
     ThemeManager,
     ViewManager,
-    CoverManager
+    CoverManager,
+    FiltersManager,
+    AutocompleteManager,
+    SavedSearchesManager
   };
 
 })();

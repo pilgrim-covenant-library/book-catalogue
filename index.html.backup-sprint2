@@ -113,10 +113,6 @@
         </div>
       </div>
       <div class="header-actions">
-        
-        <button class="advanced-search-btn" aria-label="Advanced search" style="margin-left: 1rem; padding: 0.5rem 1rem; background: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
-          Advanced Search
-        </button>
         <button class="theme-toggle" aria-label="Toggle dark mode">
           <span>🌙</span><span class="toggle-text">Dark</span>
         </button>
@@ -683,49 +679,6 @@ $(document).ready(function() {
 });
 
 </script>
-
-
-  <!-- Advanced Search Modal (Sprint 2) -->
-  <div class="advanced-search-modal">
-    <div class="advanced-search-content">
-      <div class="advanced-search-header">
-        <h2>Advanced Search</h2>
-        <button class="close-modal" aria-label="Close">&times;</button>
-      </div>
-
-      <form class="advanced-search-form">
-        <div class="search-field">
-          <label for="adv-search-title">Title</label>
-          <input type="text" id="adv-search-title" class="adv-search-title" placeholder="Enter book title...">
-        </div>
-
-        <div class="search-field">
-          <label for="adv-search-author">Author</label>
-          <input type="text" id="adv-search-author" class="adv-search-author" placeholder="Enter author name...">
-        </div>
-
-        <div class="search-field">
-          <label for="adv-search-year-from">Publication Year From</label>
-          <input type="number" id="adv-search-year-from" class="adv-search-year-from" placeholder="1500" min="1500" max="2024">
-        </div>
-
-        <div class="search-field">
-          <label for="adv-search-year-to">Publication Year To</label>
-          <input type="number" id="adv-search-year-to" class="adv-search-year-to" placeholder="2024" min="1500" max="2024">
-        </div>
-
-        <div class="search-field">
-          <label for="adv-search-call-number">Call Number</label>
-          <input type="text" id="adv-search-call-number" class="adv-search-call-number" placeholder="Enter call number...">
-        </div>
-
-        <div class="search-actions">
-          <button type="submit" class="btn-primary">Search</button>
-          <button type="button" class="btn-secondary save-search-btn">Save Search</button>
-        </div>
-      </form>
-    </div>
-  </div>
 
   <!-- Enhanced Catalogue Features -->
   
