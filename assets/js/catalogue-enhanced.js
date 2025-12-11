@@ -1659,8 +1659,9 @@
 
     // Wait for DOM and DataTable to be ready
     $(document).ready(function() {
-      // Wait a bit for DataTable to initialize
+      // Wait longer for DataTable to fully initialize (increased from 1000ms to 2500ms)
       setTimeout(() => {
+        console.log('⏰ Starting data load...');
         DataLoader.loadFromDataTable();
         ViewManager.init();
         SearchManager.init();
@@ -1683,7 +1684,7 @@
         console.log('✅ Sprint 2: Search & Discovery features loaded!');
         console.log('✅ Sprint 3: Rich Book Details & Metadata loaded!');
         console.log('✅ Sprint 4: User Features (Favorites, Lists, Notes) loaded!');
-      }, 1000);
+      }, 2500); // Increased delay to ensure DataTables are fully loaded
     });
   }
 
