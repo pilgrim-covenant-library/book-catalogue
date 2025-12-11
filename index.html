@@ -424,37 +424,37 @@ const authorBiographies = {
 };
 
 // Initialize author bio tooltips
-function initializeAuthorTooltips() {{
+function initializeAuthorTooltips() {
     // Get all table cells with author names
     const table = document.querySelector('#catalogue-table');
     if (!table) return;
 
     // Use DataTables API if available
-    if ($.fn.DataTable.isDataTable('#catalogue-table')) {{
+    if ($.fn.DataTable.isDataTable('#catalogue-table')) {
         const dataTable = $('#catalogue-table').DataTable();
 
         // Add draw callback to reinitialize tooltips after table redraws
-        dataTable.on('draw', function() {{
+        dataTable.on('draw', function() {
             attachTooltipsToAuthors();
-        }});
-    }}
+        });
+    }
 
     // Initial attachment
     attachTooltipsToAuthors();
-}}
+}
 
-function attachTooltipsToAuthors() {{
+function attachTooltipsToAuthors() {
     // Find all author cells (first column in table)
     const rows = document.querySelectorAll('#catalogue-table tbody tr');
 
-    rows.forEach(row => {{
+    rows.forEach(row => {
         const authorCell = row.querySelector('td:first-child');
         if (!authorCell) return;
 
         const authorName = authorCell.textContent.trim();
 
         // Check if this author has a biography
-        if (authorBiographies[authorName]) {{
+        if (authorBiographies[authorName]) {
             // Add styling class
             authorCell.classList.add('author-with-bio');
 
@@ -468,57 +468,57 @@ function attachTooltipsToAuthors() {{
             authorCell.appendChild(tooltip);
 
             // Add hover events
-            authorCell.addEventListener('mouseenter', () => {{
+            authorCell.addEventListener('mouseenter', () => {
                 tooltip.classList.add('show');
-            }});
+            });
 
-            authorCell.addEventListener('mouseleave', () => {{
+            authorCell.addEventListener('mouseleave', () => {
                 tooltip.classList.remove('show');
-            }});
+            });
 
             // Add click event for mobile
-            authorCell.addEventListener('click', (e) => {{
+            authorCell.addEventListener('click', (e) => {
                 e.stopPropagation();
                 tooltip.classList.toggle('show');
-            }});
-        }}
-    }});
-}}
+            });
+        }
+    });
+}
 
-function createAuthorTooltip(name, bio) {{
+function createAuthorTooltip(name, bio) {
     const tooltip = document.createElement('div');
     tooltip.className = 'author-tooltip';
 
-    let html = `<h4>${{name}}</h4>`;
+    let html = `<h4>${name}</h4>`;
 
-    if (bio.birth_death) {{
-        html += `<div class="bio-dates">${{bio.birth_death}}</div>`;
-    }}
+    if (bio.birth_death) {
+        html += `<div class="bio-dates">${bio.birth_death}</div>`;
+    }
 
-    if (bio.biography) {{
-        html += `<div class="bio-text">${{bio.biography}}</div>`;
-    }}
+    if (bio.biography) {
+        html += `<div class="bio-text">${bio.biography}</div>`;
+    }
 
-    if (bio.significance) {{
-        html += `<div class="bio-significance"><strong>Known for:</strong> ${{bio.significance}}</div>`;
-    }}
+    if (bio.significance) {
+        html += `<div class="bio-significance"><strong>Known for:</strong> ${bio.significance}</div>`;
+    }
 
     tooltip.innerHTML = html;
     return tooltip;
-}}
+}
 
 // Close tooltips when clicking outside
-document.addEventListener('click', () => {{
-    document.querySelectorAll('.author-tooltip.show').forEach(tooltip => {{
+document.addEventListener('click', () => {
+    document.querySelectorAll('.author-tooltip.show').forEach(tooltip => {
         tooltip.classList.remove('show');
-    }});
-}});
+    });
+});
 
 // Initialize when document is ready
-$(document).ready(function() {{
+$(document).ready(function() {
     // Wait for DataTable to initialize first
     setTimeout(initializeAuthorTooltips, 500);
-}});
+});
 
 </script>
 </body>
