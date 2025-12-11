@@ -145,19 +145,6 @@
         <button class="advanced-search-btn" aria-label="Advanced search" style="margin-left: 1rem; padding: 0.5rem 1rem; background: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
           Advanced Search
         </button>
-        
-        <button id="filters-toggle" class="filters-toggle-btn" aria-label="Toggle filters" style="margin-left: 0.5rem; padding: 0.5rem 1rem; background: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
-          🔽 Filters
-        </button>
-        <button id="saved-searches-btn" class="saved-searches-btn" aria-label="Saved searches" style="margin-left: 0.5rem; padding: 0.5rem 1rem; background: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
-          ⭐ Saved Searches
-        </button>
-        <button id="favorites-btn" class="favorites-btn" aria-label="My favorites" style="margin-left: 0.5rem; padding: 0.5rem 1rem; background: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
-          ❤️ Favorites
-        </button>
-        <button id="reading-lists-btn" class="reading-lists-btn" aria-label="Reading lists" style="margin-left: 0.5rem; padding: 0.5rem 1rem; background: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
-          📚 Reading Lists
-        </button>
         <button class="theme-toggle" aria-label="Toggle dark mode">
           <span>🌙</span><span class="toggle-text">Dark</span>
         </button>
@@ -177,40 +164,6 @@
       </div>
     </div>
   </header>
-
-  <!-- Filters Sidebar (Sprint 2) -->
-  <aside class="filters-sidebar" style="display: none;">
-    <div class="filters-header">
-      <h3>Filters</h3>
-      <button class="close-filters" aria-label="Close filters">✕</button>
-    </div>
-    <div class="filters-content">
-      <div class="filter-section">
-        <h4>Authors</h4>
-        <div id="author-filters" class="filter-list"></div>
-      </div>
-      <div class="filter-section">
-        <h4>Categories</h4>
-        <div id="category-filters" class="filter-list"></div>
-      </div>
-      <div class="filter-section">
-        <h4>Publication Year</h4>
-        <div id="year-filters">
-          <input type="number" id="year-from" placeholder="From" min="1500" max="2025">
-          <input type="number" id="year-to" placeholder="To" min="1500" max="2025">
-        </div>
-      </div>
-      <div class="filter-section">
-        <label>
-          <input type="checkbox" id="filter-ebook"> E-book available
-        </label>
-      </div>
-      <button id="apply-filters" class="apply-filters-btn">Apply Filters</button>
-      <button id="clear-filters" class="clear-filters-btn">Clear All</button>
-    </div>
-  </aside>
-
-
 
   <main id="main-content" role="main">
   <!-- Tab Navigation -->
@@ -244,17 +197,6 @@
       </select>
     </div>
   </div>
-
-  <!-- Card View Container (Sprint 1) -->
-  <div class="book-grid" data-view="card" style="display: none;">
-    <!-- Dynamically populated by JS -->
-  </div>
-
-  <!-- List View Container (Sprint 1) -->
-  <div class="book-list" data-view="list" style="display: none;">
-    <!-- Dynamically populated by JS -->
-  </div>
-
   <div class="search-area hidden">
     <input type="text" id="global-search" placeholder="Search all fields..." />
     <input list="authors" id="author-search" placeholder="Filter by author" />
@@ -395,7 +337,7 @@
       for (var i = 0; i < tabcontent.length; i++) {
         tabcontent[i].style.display = 'none';
       }
-      var tabbuttons = document.getElementsByClassName('tab-nav')[0].getElementsByTagName('button');
+      var tabbuttons = document.getElementsByClassName('tab-buttons')[0].getElementsByTagName('button');
       for (var i = 0; i < tabbuttons.length; i++) {
         tabbuttons[i].className = tabbuttons[i].className.replace(' active', '');
       }
@@ -1389,130 +1331,6 @@
 };
   </script>
   <script src="assets/js/catalogue-enhanced.js"></script>
-
-
-  <!-- Advanced Search Modal (Sprint 2) -->
-  <div id="advanced-search-modal" class="modal" style="display: none;">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Advanced Search</h2>
-        <button class="close-modal" aria-label="Close modal">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label for="adv-title">Title</label>
-          <input type="text" id="adv-title" placeholder="Book title...">
-        </div>
-        <div class="form-group">
-          <label for="adv-author">Author</label>
-          <input type="text" id="adv-author" placeholder="Author name...">
-        </div>
-        <div class="form-group">
-          <label for="adv-call-number">Call Number</label>
-          <input type="text" id="adv-call-number" placeholder="Call number...">
-        </div>
-        <div class="form-group">
-          <label for="adv-year">Publication Year</label>
-          <input type="number" id="adv-year" placeholder="Year..." min="1500" max="2025">
-        </div>
-        <div class="modal-actions">
-          <button id="perform-advanced-search" class="btn-primary">Search</button>
-          <button class="close-modal btn-secondary">Cancel</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Book Detail Modal (Sprint 3) -->
-  <div id="book-detail-modal" class="modal" style="display: none;">
-    <div class="modal-content modal-large">
-      <div class="modal-header">
-        <h2 id="book-detail-title">Book Title</h2>
-        <button class="close-modal" aria-label="Close modal">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="book-detail-container">
-          <div class="book-detail-cover">
-            <img id="book-detail-cover-img" src="" alt="Book cover">
-          </div>
-          <div class="book-detail-info">
-            <div id="book-detail-content">
-              <!-- Dynamically populated -->
-            </div>
-          </div>
-        </div>
-        <div class="book-detail-tabs">
-          <button class="tab-button active" data-tab="overview">Overview</button>
-          <button class="tab-button" data-tab="author">Author</button>
-          <button class="tab-button" data-tab="ebooks">E-books</button>
-          <button class="tab-button" data-tab="related">Related</button>
-        </div>
-        <div class="tab-content">
-          <div id="tab-overview" class="tab-pane active"></div>
-          <div id="tab-author" class="tab-pane"></div>
-          <div id="tab-ebooks" class="tab-pane"></div>
-          <div id="tab-related" class="tab-pane"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Favorites Modal (Sprint 4) -->
-  <div id="favorites-modal" class="modal" style="display: none;">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>My Favorites</h2>
-        <button class="close-modal" aria-label="Close modal">✕</button>
-      </div>
-      <div class="modal-body">
-        <div id="favorites-list">
-          <!-- Dynamically populated -->
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Reading Lists Modal (Sprint 4) -->
-  <div id="reading-lists-modal" class="modal" style="display: none;">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Reading Lists</h2>
-        <button class="close-modal" aria-label="Close modal">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="reading-lists-tabs">
-          <button class="list-tab active" data-list="to-read">To Read</button>
-          <button class="list-tab" data-list="currently-reading">Currently Reading</button>
-          <button class="list-tab" data-list="read">Read</button>
-        </div>
-        <div id="reading-lists-content">
-          <!-- Dynamically populated -->
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Notes Editor Modal (Sprint 4) -->
-  <div id="notes-modal" class="modal" style="display: none;">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Book Notes</h2>
-        <button class="close-modal" aria-label="Close modal">✕</button>
-      </div>
-      <div class="modal-body">
-        <h3 id="notes-book-title"></h3>
-        <textarea id="notes-editor" rows="10" placeholder="Write your notes here..."></textarea>
-        <div class="modal-actions">
-          <button id="save-notes" class="btn-primary">Save Notes</button>
-          <button id="delete-notes" class="btn-danger">Delete Notes</button>
-          <button class="close-modal btn-secondary">Cancel</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Notification Container (Sprint 4) -->
-  <div id="notification-container" style="position: fixed; top: 80px; right: 20px; z-index: 10000;"></div>
 
   <!-- Service Worker Registration (Sprint 5 - PWA) -->
   <script>
