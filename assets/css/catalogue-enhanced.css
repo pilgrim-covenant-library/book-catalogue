@@ -1693,3 +1693,136 @@ table.dataTable tbody td {
     white-space: nowrap;
   }
 }
+
+/* ==========================================
+   Sprint 4: User Features (Favorites, Lists, Notes)
+   ========================================== */
+
+/* Notification Toast */
+.notification {
+  position: fixed;
+  bottom: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--primary-color);
+  color: white;
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-xl);
+  z-index: 5000;
+  transition: bottom 0.3s ease;
+  font-weight: 500;
+  max-width: 90%;
+  text-align: center;
+}
+
+.notification.show {
+  bottom: var(--spacing-xl);
+}
+
+/* Note Editor Modal */
+.note-editor-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 4000;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+}
+
+.note-editor-modal.show {
+  display: flex;
+}
+
+/* Favorites and Reading Lists Pages */
+.favorites-list,
+.reading-lists-container {
+  padding: var(--spacing-xl);
+}
+
+.reading-list-section {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+}
+
+.reading-list-section h3 {
+  margin: 0 0 var(--spacing-md) 0;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Add Notes Button in Book Detail */
+.book-action-btn[data-action="notes"] {
+  background: #9B59B6;
+  color: white;
+  border-color: #9B59B6;
+}
+
+.book-action-btn[data-action="notes"]:hover {
+  background: #8E44AD;
+  border-color: #8E44AD;
+}
+
+/* Has Note Indicator */
+.has-note-indicator {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  background: #9B59B6;
+  color: white;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Favorites Tab in Header */
+.header-favorites-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.header-favorites-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.favorites-badge {
+  background: #E74C3C;
+  color: white;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .notification {
+    max-width: 80%;
+    font-size: 0.9rem;
+    padding: var(--spacing-sm) var(--spacing-lg);
+  }
+
+  .favorites-list,
+  .reading-lists-container {
+    padding: var(--spacing-md);
+  }
+}

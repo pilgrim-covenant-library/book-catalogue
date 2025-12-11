@@ -1322,19 +1322,266 @@
   };
 
   // ==========================================
-  // Sprint 3: Placeholder Managers (Sprint 4 implementation)
+  // Sprint 4: Favorites Manager
   // ==========================================
   const FavoritesManager = {
+    STORAGE_KEY: 'pcc_favorites',
+
+    init() {
+      this.loadFavorites();
+    },
+
+    loadFavorites() {
+      const saved = localStorage.getItem(this.STORAGE_KEY);
+      State.favorites = saved ? JSON.parse(saved) : [];
+    },
+
+    isFavorite(bookId) {
+      return State.favorites.some(f => f.id === bookId);
+    },
+
     toggleFavorite(book) {
-      console.log('Favorite toggled for:', book.title);
-      // Will be implemented in Sprint 4
+      const isFav = this.isFavorite(book.id);
+
+      if (isFav) {
+        // Remove from favorites
+        State.favorites = State.favorites.filter(f => f.id !== book.id);
+        this.showNotification(`Removed "${book.title}" from favorites`);
+      } else {
+        // Add to favorites
+        State.favorites.push({
+          ...book,
+          addedAt: new Date().toISOString()
+        });
+        this.showNotification(`Added "${book.title}" to favorites ❤️`);
+      }
+
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(State.favorites));
+      this.updateFavoriteButtons();
+      this.renderFavoritesList();
+    },
+
+    updateFavoriteButtons() {
+      // Update all favorite buttons in modals
+      document.querySelectorAll('[data-action="favorite"]').forEach(btn => {
+        const modal = btn.closest('.book-detail-modal');
+        if (!modal || !BookDetailModal.currentBook) return;
+
+        const isFav = this.isFavorite(BookDetailModal.currentBook.id);
+        if (isFav) {
+          btn.classList.add('active');
+          btn.innerHTML = '<span>❤️</span> Favorited';
+        } else {
+          btn.classList.remove('active');
+          btn.innerHTML = '<span>❤️</span> Add to Favorites';
+        }
+      });
+    },
+
+    renderFavoritesList() {
+      const container = document.querySelector('.favorites-list');
+      if (!container) return;
+
+      if (State.favorites.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 2rem;">No favorites yet. Click the ❤️ button on any book to add it!</p>';
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="book-grid">
+          ${State.favorites.map(book => ViewManager.createBookCard(book)).join('')}
+        </div>
+      `;
+    },
+
+    showNotification(message) {
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.textContent = message;
+      document.body.appendChild(notification);
+
+      setTimeout(() => notification.classList.add('show'), 100);
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
     }
   };
 
+  // ==========================================
+  // Sprint 4: Reading List Manager
+  // ==========================================
   const ReadingListManager = {
-    addToList(book) {
-      console.log('Added to reading list:', book.title);
-      // Will be implemented in Sprint 4
+    STORAGE_KEY: 'pcc_reading_lists',
+
+    init() {
+      this.loadLists();
+    },
+
+    loadLists() {
+      const saved = localStorage.getItem(this.STORAGE_KEY);
+      State.readingLists = saved ? JSON.parse(saved) : [
+        { id: 'to-read', name: 'To Read', books: [] },
+        { id: 'reading', name: 'Currently Reading', books: [] },
+        { id: 'read', name: 'Read', books: [] }
+      ];
+    },
+
+    addToList(book, listId = 'to-read') {
+      const list = State.readingLists.find(l => l.id === listId);
+      if (!list) return;
+
+      // Check if already in list
+      if (list.books.some(b => b.id === book.id)) {
+        FavoritesManager.showNotification(`"${book.title}" is already in ${list.name}`);
+        return;
+      }
+
+      list.books.push({
+        ...book,
+        addedAt: new Date().toISOString()
+      });
+
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(State.readingLists));
+      FavoritesManager.showNotification(`Added "${book.title}" to ${list.name} 📚`);
+      this.renderReadingLists();
+    },
+
+    removeFromList(bookId, listId) {
+      const list = State.readingLists.find(l => l.id === listId);
+      if (!list) return;
+
+      list.books = list.books.filter(b => b.id !== bookId);
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(State.readingLists));
+      this.renderReadingLists();
+    },
+
+    moveBook(bookId, fromListId, toListId) {
+      const fromList = State.readingLists.find(l => l.id === fromListId);
+      const toList = State.readingLists.find(l => l.id === toListId);
+
+      if (!fromList || !toList) return;
+
+      const book = fromList.books.find(b => b.id === bookId);
+      if (!book) return;
+
+      this.removeFromList(bookId, fromListId);
+      this.addToList(book, toListId);
+    },
+
+    createList(name) {
+      const id = name.toLowerCase().replace(/\s+/g, '-');
+      State.readingLists.push({
+        id,
+        name,
+        books: [],
+        createdAt: new Date().toISOString()
+      });
+
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(State.readingLists));
+      this.renderReadingLists();
+    },
+
+    renderReadingLists() {
+      const container = document.querySelector('.reading-lists-container');
+      if (!container) return;
+
+      container.innerHTML = State.readingLists.map(list => `
+        <div class="reading-list-section">
+          <h3>${list.name} (${list.books.length})</h3>
+          ${list.books.length === 0
+            ? `<p style="color: var(--text-secondary); font-size: 0.9rem;">No books in this list yet.</p>`
+            : `<div class="book-grid">
+                ${list.books.map(book => ViewManager.createBookCard(book)).join('')}
+              </div>`
+          }
+        </div>
+      `).join('');
+    }
+  };
+
+  // ==========================================
+  // Sprint 4: Notes Manager
+  // ==========================================
+  const NotesManager = {
+    STORAGE_KEY: 'pcc_book_notes',
+
+    init() {
+      this.loadNotes();
+    },
+
+    loadNotes() {
+      const saved = localStorage.getItem(this.STORAGE_KEY);
+      State.bookNotes = saved ? JSON.parse(saved) : {};
+    },
+
+    getNote(bookId) {
+      return State.bookNotes[bookId] || null;
+    },
+
+    saveNote(bookId, note) {
+      State.bookNotes[bookId] = {
+        note,
+        updatedAt: new Date().toISOString()
+      };
+
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(State.bookNotes));
+      FavoritesManager.showNotification('Note saved! 📝');
+    },
+
+    deleteNote(bookId) {
+      delete State.bookNotes[bookId];
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(State.bookNotes));
+      FavoritesManager.showNotification('Note deleted');
+    },
+
+    showNoteEditor(book) {
+      const existingNote = this.getNote(book.id);
+
+      const modal = document.createElement('div');
+      modal.className = 'note-editor-modal show';
+      modal.innerHTML = `
+        <div class="note-editor-content" style="background: var(--bg-primary); padding: 2rem; border-radius: 12px; max-width: 600px; width: 90%;">
+          <h2 style="margin: 0 0 1rem 0;">Notes for "${book.title}"</h2>
+          <textarea
+            class="note-textarea"
+            placeholder="Write your notes here..."
+            style="width: 100%; min-height: 200px; padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; font-family: inherit; font-size: 1rem; resize: vertical;"
+          >${existingNote ? existingNote.note : ''}</textarea>
+          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button class="btn-primary save-note-btn" style="flex: 1;">Save Note</button>
+            ${existingNote ? '<button class="btn-secondary delete-note-btn" style="flex: 1;">Delete Note</button>' : ''}
+            <button class="btn-secondary close-note-btn" style="flex: 1;">Cancel</button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+
+      modal.querySelector('.save-note-btn').addEventListener('click', () => {
+        const noteText = modal.querySelector('.note-textarea').value.trim();
+        if (noteText) {
+          this.saveNote(book.id, noteText);
+        }
+        modal.remove();
+      });
+
+      modal.querySelector('.close-note-btn').addEventListener('click', () => {
+        modal.remove();
+      });
+
+      if (existingNote) {
+        modal.querySelector('.delete-note-btn').addEventListener('click', () => {
+          if (confirm('Delete this note?')) {
+            this.deleteNote(book.id);
+            modal.remove();
+          }
+        });
+      }
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+      });
     }
   };
 
@@ -1364,9 +1611,15 @@
         // Sprint 3 features
         BookDetailModal.init();
 
+        // Sprint 4 features
+        FavoritesManager.init();
+        ReadingListManager.init();
+        NotesManager.init();
+
         console.log('✅ Enhanced features loaded successfully!');
         console.log('✅ Sprint 2: Search & Discovery features loaded!');
         console.log('✅ Sprint 3: Rich Book Details & Metadata loaded!');
+        console.log('✅ Sprint 4: User Features (Favorites, Lists, Notes) loaded!');
       }, 1000);
     });
   }
@@ -1385,7 +1638,8 @@
     SavedSearchesManager,
     BookDetailModal,
     FavoritesManager,
-    ReadingListManager
+    ReadingListManager,
+    NotesManager
   };
 
 })();
