@@ -24,6 +24,7 @@
     currentView: localStorage.getItem(CONFIG.VIEW_MODE_KEY) || 'table',
     currentTheme: localStorage.getItem(CONFIG.THEME_KEY) || 'light',
     currentSort: localStorage.getItem(CONFIG.SORT_KEY) || 'title',
+    currentTab: 'main', // Track which tab is active: main, children, dvd, chinese
     books: [],
     filteredBooks: []
   };
@@ -129,7 +130,9 @@
       const container = document.querySelector('[data-view="card"]');
       if (!container) return;
 
-      const books = State.filteredBooks.length > 0 ? State.filteredBooks : State.books;
+      // Filter books by current tab
+      let books = State.filteredBooks.length > 0 ? State.filteredBooks : State.books;
+      books = books.filter(book => book.category === State.currentTab);
 
       container.innerHTML = books.map(book => this.createBookCard(book)).join('');
 
@@ -141,7 +144,9 @@
       const container = document.querySelector('[data-view="list"]');
       if (!container) return;
 
-      const books = State.filteredBooks.length > 0 ? State.filteredBooks : State.books;
+      // Filter books by current tab
+      let books = State.filteredBooks.length > 0 ? State.filteredBooks : State.books;
+      books = books.filter(book => book.category === State.currentTab);
 
       container.innerHTML = books.map(book => this.createBookListItem(book)).join('');
 
@@ -251,6 +256,58 @@
           img.src = img.dataset.src;
           img.classList.remove('lazy');
         });
+      }
+    }
+  };
+
+  // ==========================================
+  // Tab Management
+  // ==========================================
+  const TabManager = {
+    init() {
+      this.attachListeners();
+      this.syncInitialTab();
+    },
+
+    attachListeners() {
+      // Listen to tab button clicks
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          // Get the tab name from the onclick attribute
+          const onclickAttr = btn.getAttribute('onclick');
+          if (onclickAttr) {
+            // Extract tab name from: openTab(event, 'children')
+            const match = onclickAttr.match(/openTab\(event,\s*'([^']+)'\)/);
+            if (match) {
+              const tabName = match[1];
+              this.onTabChange(tabName);
+            }
+          }
+        });
+      });
+    },
+
+    syncInitialTab() {
+      // Find which tab is currently active
+      const activeTab = document.querySelector('.tab-btn.active');
+      if (activeTab) {
+        const onclickAttr = activeTab.getAttribute('onclick');
+        if (onclickAttr) {
+          const match = onclickAttr.match(/openTab\(event,\s*'([^']+)'\)/);
+          if (match) {
+            State.currentTab = match[1];
+          }
+        }
+      }
+    },
+
+    onTabChange(tabName) {
+      console.log('📑 Tab changed to:', tabName);
+      State.currentTab = tabName;
+
+      // Re-render card and list views with filtered books
+      if (State.currentView === 'card' || State.currentView === 'list') {
+        ViewManager.renderBooks();
       }
     }
   };
@@ -1664,6 +1721,7 @@
         console.log('⏰ Starting data load...');
         DataLoader.loadFromDataTable();
         ViewManager.init();
+        TabManager.init();
         SearchManager.init();
 
         // Sprint 2 features
@@ -1696,6 +1754,7 @@
     State,
     ThemeManager,
     ViewManager,
+    TabManager,
     CoverManager,
     FiltersManager,
     AutocompleteManager,

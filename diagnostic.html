@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PCC Library Diagnostic</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; }
+        .result { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .pass { background: #d4edda; border-left: 4px solid #28a745; }
+        .fail { background: #f8d7da; border-left: 4px solid #dc3545; }
+        iframe { width: 100%; height: 600px; border: 2px solid #333; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>PCC Library Catalogue Diagnostic Tool</h1>
+
+    <div>
+        <h2>1. View the Catalogue:</h2>
+        <iframe id="catalogueFrame" src="index.html"></iframe>
+    </div>
+
+    <div>
+        <h2>2. Test Tab Switching:</h2>
+        <button onclick="testMainTab()">Test Main Tab</button>
+        <button onclick="testChildrenTab()">Test Children Tab</button>
+        <button onclick="testDVDTab()">Test DVD Tab</button>
+        <button onclick="testChineseTab()">Test Chinese Tab</button>
+        <div id="tabResults"></div>
+    </div>
+
+    <div>
+        <h2>3. Test View Switching:</h2>
+        <button onclick="testTableView()">Test Table View</button>
+        <button onclick="testCardView()">Test Card View</button>
+        <button onclick="testListView()">Test List View</button>
+        <div id="viewResults"></div>
+    </div>
+
+    <script>
+        function getFrame() {
+            return document.getElementById('catalogueFrame').contentWindow;
+        }
+
+        function wait(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function testTab(tabIndex, tabName, tableId, expectedCount) {
+            const frame = getFrame();
+            const tabs = frame.document.querySelectorAll('button.tab-btn');
+
+            if (!tabs[tabIndex]) {
+                showResult('tabResults', `❌ ${tabName} tab button not found`, 'fail');
+                return;
+            }
+
+            tabs[tabIndex].click();
+            await wait(1000);
+
+            const tabDiv = frame.document.getElementById(tabName.toLowerCase());
+            const table = frame.document.getElementById(tableId);
+
+            const results = {
+                tabName,
+                divVisible: tabDiv ? tabDiv.style.display === 'block' : false,
+                tableExists: !!table,
+                dataTableCount: 0,
+                domRows: 0
+            };
+
+            if (table && frame.$.fn.DataTable.isDataTable(`#${tableId}`)) {
+                results.dataTableCount = frame.$(`#${tableId}`).DataTable().rows().count();
+            }
+
+            const tbody = table ? table.querySelector('tbody') : null;
+            if (tbody) {
+                results.domRows = tbody.querySelectorAll('tr').length;
+            }
+
+            const pass = results.divVisible && results.dataTableCount === expectedCount && results.domRows > 0;
+            const msg = `
+                <strong>${tabName} Tab:</strong><br>
+                Div Visible: ${results.divVisible ? '✅' : '❌'}<br>
+                DataTable Rows: ${results.dataTableCount} (expected: ${expectedCount})<br>
+                DOM Rows: ${results.domRows}<br>
+                Status: ${pass ? '✅ PASS' : '❌ FAIL'}
+            `;
+
+            showResult('tabResults', msg, pass ? 'pass' : 'fail');
+        }
+
+        async function testMainTab() {
+            await testTab(0, 'Main', 'main-table', 2020);
+        }
+
+        async function testChildrenTab() {
+            await testTab(1, 'Children', 'children-table', 426);
+        }
+
+        async function testDVDTab() {
+            await testTab(2, 'DVD', 'dvd-table', 55);
+        }
+
+        async function testChineseTab() {
+            await testTab(3, 'Chinese', 'chinese-table', 93);
+        }
+
+        async function testView(viewMode, expectedContainer) {
+            const frame = getFrame();
+            const btn = frame.document.querySelector(`[data-view-mode="${viewMode}"]`);
+
+            if (!btn) {
+                showResult('viewResults', `❌ ${viewMode} view button not found`, 'fail');
+                return;
+            }
+
+            btn.click();
+            await wait(2000);
+
+            const container = frame.document.querySelector(expectedContainer);
+            const style = container ? frame.window.getComputedStyle(container) : null;
+            const isVisible = style && style.display !== 'none';
+
+            let itemCount = 0;
+            if (viewMode === 'card') {
+                itemCount = frame.document.querySelectorAll('.book-card').length;
+            } else if (viewMode === 'list') {
+                itemCount = frame.document.querySelectorAll('.book-list-item').length;
+            }
+
+            const pass = isVisible && (viewMode === 'table' || itemCount > 0);
+            const msg = `
+                <strong>${viewMode.toUpperCase()} View:</strong><br>
+                Container Visible: ${isVisible ? '✅' : '❌'}<br>
+                Items Rendered: ${itemCount}<br>
+                Status: ${pass ? '✅ PASS' : '❌ FAIL'}
+            `;
+
+            showResult('viewResults', msg, pass ? 'pass' : 'fail');
+        }
+
+        async function testTableView() {
+            await testView('table', '#main');
+        }
+
+        async function testCardView() {
+            await testView('card', '.book-grid');
+        }
+
+        async function testListView() {
+            await testView('list', '.book-list');
+        }
+
+        function showResult(containerId, message, className) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = `result ${className}`;
+            div.innerHTML = message;
+            container.appendChild(div);
+
+            // Keep only last 5 results
+            while (container.children.length > 5) {
+                container.removeChild(container.firstChild);
+            }
+        }
+    </script>
+</body>
+</html>
