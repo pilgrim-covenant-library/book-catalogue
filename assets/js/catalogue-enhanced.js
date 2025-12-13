@@ -580,7 +580,7 @@
 
     attachListeners() {
       // Filters toggle
-      const toggle = document.querySelector('.filters-toggle');
+      const toggle = document.querySelector('#filters-toggle');
       if (toggle) {
         toggle.addEventListener('click', this.toggleFilters.bind(this));
       }

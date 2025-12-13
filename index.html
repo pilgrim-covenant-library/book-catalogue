@@ -12,6 +12,11 @@
   <meta name="apple-mobile-web-app-title" content="PCC Library">
   <link rel="apple-touch-icon" href="https://pilgrim-covenant.com/images/logo/svg/logo.svg">
 
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
   <!-- Performance Optimizations -->
   <link rel="preconnect" href="https://code.jquery.com">
   <link rel="preconnect" href="https://cdn.datatables.net">
@@ -48,84 +53,7 @@
     table.dataTable thead th { background-color: #0B3D91; color: white; }
     .featured { background-color: #fff; padding: 20px; margin: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .featured h2 { color: #0B3D91; margin-top: 0; }
-  
-
-
-
-/* Author Biography Tooltips */
-.author-with-bio {
-    position: relative;
-    cursor: help;
-    color: #0B3D91;
-    text-decoration: underline dotted;
-    font-weight: 500;
-}
-
-.author-tooltip {
-    display: none;
-    position: absolute;
-    background: white;
-    border: 2px solid #0B3D91;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-    z-index: 10000;
-    max-width: 450px;
-    min-width: 300px;
-    font-size: 13px;
-    line-height: 1.6;
-    top: 100%;
-    left: 0;
-    margin-top: 5px;
-}
-
-.author-tooltip.show {
-    display: block;
-}
-
-.author-tooltip h4 {
-    margin: 0 0 8px 0;
-    color: #0B3D91;
-    font-size: 16px;
-    font-weight: bold;
-    border-bottom: 2px solid #0B3D91;
-    padding-bottom: 5px;
-}
-
-.author-tooltip .bio-dates {
-    color: #666;
-    font-size: 12px;
-    font-style: italic;
-    margin-bottom: 8px;
-}
-
-.author-tooltip .bio-text {
-    color: #333;
-    margin-bottom: 8px;
-}
-
-.author-tooltip .bio-significance {
-    color: #555;
-    font-style: italic;
-    font-size: 12px;
-    border-top: 1px solid #ddd;
-    padding-top: 8px;
-    margin-top: 8px;
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-    .author-tooltip {
-        position: fixed;
-        max-width: 90%;
-        left: 5% !important;
-        right: 5%;
-        top: 50% !important;
-        transform: translateY(-50%);
-    }
-}
-
-</style>
+  </style>
 </head>
 <body>
   <a href="#main-content" class="skip-to-content" style="position: absolute; left: -9999px; z-index: 999; padding: 1rem; background: var(--primary-color); color: white; text-decoration: none; font-weight: 600;">Skip to main content</a>
@@ -179,7 +107,7 @@
   </header>
 
   <!-- Filters Sidebar (Sprint 2) -->
-  <aside class="filters-sidebar" style="display: none;">
+  <aside class="filters-sidebar collapsed">
     <div class="filters-header">
       <h3>Filters</h3>
       <button class="close-filters" aria-label="Close filters">✕</button>
