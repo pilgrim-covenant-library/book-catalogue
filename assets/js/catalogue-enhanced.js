@@ -957,6 +957,28 @@
     },
 
     attachListeners() {
+      // Open modal button
+      const openBtn = document.querySelector('#saved-searches-btn');
+      const modal = document.querySelector('#saved-searches-modal');
+      
+      if (openBtn && modal) {
+        openBtn.addEventListener('click', () => {
+          modal.classList.add('show');
+          this.renderSavedSearches();
+        });
+        
+        // Close button
+        const closeBtn = modal.querySelector('.close-modal');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', () => modal.classList.remove('show'));
+        }
+        
+        // Click outside to close
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) modal.classList.remove('show');
+        });
+      }
+
       // Add save search button functionality (will be in advanced search modal)
       const saveBtn = document.querySelector('.save-search-btn');
       if (saveBtn) {
@@ -1449,6 +1471,28 @@
 
     init() {
       this.loadFavorites();
+      this.attachListeners();
+    },
+
+    attachListeners() {
+      const openBtn = document.querySelector('#favorites-btn');
+      const modal = document.querySelector('#favorites-modal');
+      
+      if (openBtn && modal) {
+        openBtn.addEventListener('click', () => {
+          modal.classList.add('show');
+          this.renderFavoritesList();
+        });
+        
+        const closeBtn = modal.querySelector('.close-modal');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', () => modal.classList.remove('show'));
+        }
+        
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) modal.classList.remove('show');
+        });
+      }
     },
 
     loadFavorites() {
@@ -1536,6 +1580,28 @@
 
     init() {
       this.loadLists();
+      this.attachListeners();
+    },
+
+    attachListeners() {
+      const openBtn = document.querySelector('#reading-lists-btn');
+      const modal = document.querySelector('#reading-lists-modal');
+      
+      if (openBtn && modal) {
+        openBtn.addEventListener('click', () => {
+          modal.classList.add('show');
+          this.renderReadingLists();
+        });
+        
+        const closeBtn = modal.querySelector('.close-modal');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', () => modal.classList.remove('show'));
+        }
+        
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) modal.classList.remove('show');
+        });
+      }
     },
 
     loadLists() {

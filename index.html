@@ -70,21 +70,21 @@
       </div>
       <div class="header-actions">
         
-        <button class="advanced-search-btn" aria-label="Advanced search" style="margin-left: 1rem; padding: 0.5rem 1rem; background: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
-          Advanced Search
+        <button class="header-action-btn advanced-search-btn" aria-label="Advanced search">
+          <span>🔍</span> Advanced Search
         </button>
         
-        <button id="filters-toggle" class="filters-toggle-btn" aria-label="Toggle filters" style="margin-left: 0.5rem; padding: 0.5rem 1rem; background: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
-          🔽 Filters
+        <button id="filters-toggle" class="header-action-btn" aria-label="Toggle filters">
+          <span>🔽</span> Filters
         </button>
-        <button id="saved-searches-btn" class="saved-searches-btn" aria-label="Saved searches" style="margin-left: 0.5rem; padding: 0.5rem 1rem; background: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
-          ⭐ Saved Searches
+        <button id="saved-searches-btn" class="header-action-btn" aria-label="Saved searches">
+          <span>⭐</span> Saved Searches
         </button>
-        <button id="favorites-btn" class="favorites-btn" aria-label="My favorites" style="margin-left: 0.5rem; padding: 0.5rem 1rem; background: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
-          ❤️ Favorites
+        <button id="favorites-btn" class="header-action-btn" aria-label="My favorites">
+          <span>❤️</span> Favorites
         </button>
-        <button id="reading-lists-btn" class="reading-lists-btn" aria-label="Reading lists" style="margin-left: 0.5rem; padding: 0.5rem 1rem; background: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
-          📚 Reading Lists
+        <button id="reading-lists-btn" class="header-action-btn" aria-label="Reading lists">
+          <span>📚</span> Reading Lists
         </button>
         <button class="theme-toggle" aria-label="Toggle dark mode">
           <span>🌙</span><span class="toggle-text">Dark</span>
@@ -1346,6 +1346,21 @@
         <div class="modal-actions">
           <button id="perform-advanced-search" class="btn-primary">Search</button>
           <button class="close-modal btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Saved Searches Modal (Sprint 2) -->
+  <div id="saved-searches-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Saved Searches</h2>
+        <button class="close-modal" aria-label="Close modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="saved-searches">
+          <!-- Dynamically populated by JS -->
         </div>
       </div>
     </div>
